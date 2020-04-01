@@ -19,6 +19,7 @@ contains the NetBIOS name and the subsequent bytes contain
 the MAC address of the controller.
 """
 
+import datetime
 import socket
 import time
 
@@ -34,9 +35,10 @@ print("Waiting for CS800 controllers to announce themselves...")
 while True:
     data, addr = sock.recvfrom(1024)    # receive UDP data
     t = time.time()
+    dt = datetime.datetime.fromtimestamp(t).isoformat(sep=" ")
     ip, port = addr
     netbios_name = data[:16].strip()
     mac_addr = data[16:]
     print(
-        "({:.3f}, {}:{}) {} {}".format(
-            t-t0, ip, port, netbios_name, mac_addr))
+        "({}, {:.3f}, {}:{}) {} {}".format(
+            dt, t-t0, ip, port, netbios_name, mac_addr))

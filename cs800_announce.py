@@ -34,7 +34,7 @@ mac_addr = mac_addr[2:].rstrip("L")
 msg = "{:16s}{}".format(netbios_name, mac_addr).encode()
 
 # broadcast to local subnet
-udp_host = "192.168.255.255"
+udp_host = "192.168.144.99"
 
 print("UDP target IP:", udp_host)
 print("UDP target Port:", udp_port)
