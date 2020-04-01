@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-server
+client
 
 see: https://github.com/ninedraft/python-udp/blob/master/server.py
 """
