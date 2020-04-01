@@ -29,4 +29,4 @@ while True:
     t = time.time()
     dt = datetime.datetime.fromtimestamp(t).isoformat(sep=" ", timespec="milliseconds")
     ip, port = addr
-    print("({}, {}) {})".format(dt, ip, data))
+    print("({}, {}) {}".format(dt, ip, data))
