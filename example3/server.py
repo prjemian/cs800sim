@@ -6,7 +6,9 @@ client
 see: https://github.com/ninedraft/python-udp/blob/master/client.py
 """
 
+import datetime
 import socket
+import time
 
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
 
@@ -24,4 +26,7 @@ client.bind(("", 37020))
 while True:
     # Thanks @seym45 for a fix
     data, addr = client.recvfrom(1024)
-    print("received message: %s" % data)
+    t = time.time()
+    dt = datetime.datetime.fromtimestamp(t).isoformat(sep=" ", timespec="milliseconds")
+    ip, port = addr
+    print("({}, {}) {})".format(dt, ip, data))
