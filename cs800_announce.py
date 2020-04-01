@@ -31,10 +31,10 @@ mac_addr = mac_addr[2:].rstrip("L")
 
 # is MAC address coded as text or binary?
 # length of actual message received will be informative
-msg = "{:16s}{}".format(netbios_name, mac_addr)
+msg = "{:16s}{}".format(netbios_name, mac_addr).encode()
 
-# only send to discover process running on otz
-udp_host = "otz.xray.aps.anl.gov"
+# broadcast to local subnet
+udp_host = "192.168.255.255"
 
 print("UDP target IP:", udp_host)
 print("UDP target Port:", udp_port)
