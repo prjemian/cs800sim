@@ -23,13 +23,15 @@ def announcer():
     """
     udp_port = 30303			        # CS800 ID broadcast port
     udp_host = "<broadcast>"            # always broadcast
-    mac_addr = uuid.getnode()           # MAC as integer
+    mac_addr = utils.get_mac()[0]       # MAC as string
     netbios_name = socket.gethostname().split(".")[0]
 
     # is MAC address coded as text or binary?
     # length of actual message received will be informative
     msg = "{:16s}".format(netbios_name).encode()
-    msg += utils.i2bs(mac_addr)
+    mac_addr_bs = mac_addr.replace("-", "").encode()
+    # msg += utils.i2bs(mac_addr)
+    msg += mac_addr_bs
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
@@ -44,7 +46,7 @@ def announcer():
     # indefinitely when trying to receive data.
     sock.settimeout(0.2)
 
-    logger.info("%s (%s)", netbios_name, hex(mac_addr))
+    logger.info("%s (MAC: %s)", netbios_name, mac_addr)
 
     t0 = time.time()
 
