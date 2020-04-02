@@ -35,13 +35,10 @@ class CS800:
 
         self.status_keys = ["StatusGasTemp",]
         self.offset_temperature = 2.5   # add realism to simulator
-        self.controller_memory = {
-            "DeviceType" : "CS800 controller",  # correct data type?
 
-            # simulate some values
-            "StatusGasTemp" : 100.0,
-            "StatusGasSetPoint" : 100.0,
-        }
+        # set some initial values, not typical though
+        self.controller_memory = {k: 0 for k in self.status_ids.keys()}
+        self.controller_memory["StatusGasTemp"] = 100.0
         self.readGasTemp()
     
     def readGasTemp(self):
@@ -116,3 +113,51 @@ class CS800:
 if __name__ == "__main__":
     cs800 = CS800()
     cs800.emit_status()
+
+
+"""
+These are the StatusID keys used by EPICS
+
+AutoFillLNLevel
+DeviceH8Firmware
+DeviceMaxTemp
+DeviceMinTemp
+DeviceSubType
+DeviceType
+SetUpDefaultEvapAdjust
+StatusAlarmCode
+StatusAveSuctHeat
+StatusColdheadHeat
+StatusColdheadTemp
+StatusCollarTemp
+StatusCryostatTemp
+StatusElapsed
+StatusEvapAdjust
+StatusEvapHeat
+StatusEvapTemp
+StatusGasError
+StatusGasFlow
+StatusGasHeat
+StatusGasSetPoint
+StatusGasTemp
+StatusLinePressure
+StatusNozzleHeat
+StatusNozzleSetTemp
+StatusNozzleTemp
+StatusPhaseId
+StatusRampRate
+StatusRemaining
+StatusRunMode
+StatusRunTime
+StatusSampleHeat
+StatusSampleHolderPresent
+StatusSampleHolderTemp
+StatusShieldHeat
+StatusShieldTemp
+StatusSuctSetTemp
+StatusSuctTemp
+StatusTargetTemp
+StatusTurboMode
+StatusVacuumGauge
+StatusVacuumSensor
+"""
