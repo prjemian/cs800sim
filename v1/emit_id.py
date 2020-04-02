@@ -7,7 +7,6 @@ emit ID message
 import logging
 import socket
 import time
-import uuid
 
 import utils
 
