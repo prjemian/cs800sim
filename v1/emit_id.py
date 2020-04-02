@@ -29,7 +29,7 @@ def announcer():
     # is MAC address coded as text or binary?
     # length of actual message received will be informative
     msg = "{:16s}".format(netbios_name).encode()
-    mac_addr_int = utils.bs2i(mac_addr.replace("-", "").encode())
+    mac_addr_int = utils.bs2i(mac_addr.replace("-", "").replace(":", "").encode())
     msg += utils.i2bs(mac_addr_int)
     # msg += mac_addr_bs
 
