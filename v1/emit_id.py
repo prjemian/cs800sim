@@ -12,6 +12,7 @@ import uuid
 import utils
 
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__file__)
 # logger.setLevel(logging.DEBUG)
 
@@ -42,6 +43,8 @@ def announcer():
     # Set a timeout so the socket does not block
     # indefinitely when trying to receive data.
     sock.settimeout(0.2)
+
+    logger.info("%s (%s)", netbios_name, hex(mac_addr))
 
     t0 = time.time()
 
