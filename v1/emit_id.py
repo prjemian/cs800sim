@@ -31,7 +31,6 @@ def announcer():
     msg = "{:16s}".format(netbios_name).encode()
     imac = int("0x" + mac_addr, 0)   # base=0: interpret exactly as a code literal
     msg += utils.i2bs(imac)
-    # msg += mac_addr_bs
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
@@ -53,7 +52,7 @@ def announcer():
     while True:
         if time.time() > t0:
             sock.sendto(msg, (udp_host, udp_port))
-            logger.debug("message sent!")
+            logger.debug("message sent: %s", msg)
             t0 += 1
         time.sleep(0.01)
 
