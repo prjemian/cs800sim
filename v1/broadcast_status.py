@@ -104,6 +104,8 @@ class CS800:
         while True:
             self.readGasTemp()
             # print(self.controller_memory)
+            # TODO: multiple ParamIDs are sent together
+            # TODO: all data values are 16-bit integers
             for parm in self.status_keys:
                 msg = self.create_message(parm)
                 logger.debug("%s = %s : msg = %s", parm, str(self.controller_memory[parm]), msg)
