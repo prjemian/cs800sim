@@ -77,7 +77,8 @@ def get_mac():
         for conn in interfaces[nic]:
             # find the MAC address by excluding the other connections
             if conn.family not in inet_connections:
-                macs.append(conn.address)
+                mac = conn.address.replace("-", "").replace(":", "")
+                macs.append(mac)
 
     return macs
 
@@ -105,3 +106,7 @@ def bs2i(bs):
     for b in bs:
         i = i*256 + b
     return i
+
+
+if __name__ == "__main__":
+    get_mac()

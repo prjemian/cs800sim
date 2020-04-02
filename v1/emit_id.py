@@ -29,8 +29,8 @@ def announcer():
     # is MAC address coded as text or binary?
     # length of actual message received will be informative
     msg = "{:16s}".format(netbios_name).encode()
-    mac_addr_int = utils.bs2i(mac_addr.replace("-", "").replace(":", "").encode())
-    msg += utils.i2bs(mac_addr_int)
+    imac = int("0x" + mac_addr, 0)   # base=0: interpret exactly as a code literal
+    msg += utils.i2bs(imac)
     # msg += mac_addr_bs
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
