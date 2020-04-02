@@ -50,7 +50,7 @@ def announcer():
             sock.sendto(msg, (udp_host, udp_port))
             logger.debug("message sent!")
             t0 += 1
-        time.sleep(0.02)
+        time.sleep(0.01)
 
 
 if __name__ == "__main__":
