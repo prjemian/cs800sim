@@ -24,11 +24,7 @@ class CS800:
     """
 
     def __init__(self):
-        path = os.path.dirname(__file__)
-        with open(os.path.join(path, "status_ids.json"), "r") as fp:
-            self.status_ids = json.load(fp)
-        for k, v in self.status_ids.items():
-            self.status_ids[k] = utils.i2bs(v)
+        self.status_ids = utils.getStatusIds()
 
         self.udp_port = 30304			        # CS800 status broadcast port
         self.udp_host = "<broadcast>"            # always broadcast

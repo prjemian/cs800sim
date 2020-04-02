@@ -5,36 +5,21 @@ utilities
 """
 
 import collections
+import json
+import os
 import psutil
 import socket
 
 
-# def isNicKnownAsInternal(nic_name):
-#     """
-#     is this network interface name known to be internal?
-#     """
-#     if nic_name == "lo":
-#         return True
-#     elif nic_name.startswith("Loopback"):
-#         return True
-#     elif nic_name.startswith("br-"):
-#         return True
-#     elif nic_name.startswith("Virtual"):
-#         return True
-#     elif nic_name.startswith("Bluetooth"):
-#         return True
-#     elif nic_name.startswith("docker"):
-#         return True
-#     return False
-
-
-# def isAddrKnownInternal(nic_addr):
-#     """
-#     is this network interface known to be internal?
-#     """
-#     if nic_addr.family not in (2, 17):  # (AF_INET, AF_LINK)
-#         return True
-#     return False
+def getStatusIds():
+    "return a dictionary of status ID symbols and ID codes"
+    path = os.path.dirname(__file__)
+    with open(os.path.join(path, "status_ids.json"), "r") as fp:
+        status_ids = json.load(fp)
+    for k, v in status_ids.items():
+        status_ids[k] = i2bs(v)
+    
+    return status_ids
 
 
 def getActiveIPconnections():
