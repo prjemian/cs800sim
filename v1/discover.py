@@ -39,10 +39,10 @@ def discover():
 
     while True:
         data, addr = sock.recvfrom(1024)
+        t = time.time()
+        dt = datetime.datetime.fromtimestamp(t).isoformat(sep=" ", timespec="milliseconds")
+        ip, port = addr
         if len(data) == 22:
-            t = time.time()
-            dt = datetime.datetime.fromtimestamp(t).isoformat(sep=" ", timespec="milliseconds")
-            ip, port = addr
             netbios_name = data[:16].decode().strip()
             mac_addr = hex(utils.bs2i(data[16:])).lstrip("0x")
             print(
@@ -54,6 +54,8 @@ def discover():
                     mac_addr
                     )
                 )
+        else:
+            print("({}, {} {}) {}".format(dt, ip, len(data), data))
 
 
 if __name__ == "__main__":
