@@ -4,6 +4,11 @@ These files provide simulators for the CS800 controller
 to support identity broadcasts, status broadcasts, and
 commands.
 
+## Requirements
+
+* standard python packages
+* AND `[psutil`](https://github.com/giampaolo/psutil) package
+
 ## Controller
 
 A controller broadcasts identity and status every second
