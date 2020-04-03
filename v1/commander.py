@@ -49,7 +49,7 @@ class CS800controller:
         command_id = utils.COMMAND_IDS[command.upper()]
         msg = command_id + utils.encode2bytes(arg1) + utils.encode2bytes(arg2)
         msg += utils.i2bs(utils.checksum(msg))
-        logger.debug("sending %s(%d,%d): msg=%s", command, arg1, arg2, msg)
+        logger.debug("sending %s(%d,%d), length=%d: msg=%s", command, arg1, arg2, len(msg), msg)
         self.sock.sendto(msg, (self.host, COMMAND_PORT))
 
 
