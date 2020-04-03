@@ -92,6 +92,14 @@ TURBO_OFF = 0
 TURBO_ON = 1
 
 
+def checksum(byte_list, basis=1):
+    """
+    compute checksum modulo `basis` bytes
+    """
+    limit = 2**(8*basis)
+    return sum([c for c in byte_list]) % limit
+
+
 def getActiveIPconnections():
     """
     get the list of IP numbers that have established connections
@@ -193,7 +201,7 @@ def getStatusIds():
 
 
 STATUS_IDS = getStatusIds()
-
+COMMAND_IDS = {k: i2bs(v) for k, v in COMMAND_IDS.items()}
 
 def encode2bytes(n):
     """encode `n` as byte string with length 2"""
