@@ -58,7 +58,7 @@ def status():
 
 
 def receiver(results):
-    print(f"({results['datetime']}, { results['ip']})")
+    print(results)
 
 
 def commands():
