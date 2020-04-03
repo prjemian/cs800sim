@@ -88,7 +88,7 @@ class CS800:
             # logger.debug("%d ParamID=%s: msg=%s", ll, parm, parm_id + utils.encode2bytes(value))
 
         data_size = utils.encode2bytes(len(data))
-        cksum = utils.encode2bytes(sum([c for c in data]) % 65536)
+        cksum = utils.encode2bytes(utils.checksum(data, 2))
 
         msg = header + data_size + data + cksum + footer
         logger.debug("status message: %s", msg)
