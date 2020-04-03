@@ -200,15 +200,16 @@ def getStatusIds():
     return status_ids
 
 
-STATUS_IDS = getStatusIds()
-COMMAND_IDS = {k: i2bs(v) for k, v in COMMAND_IDS.items()}
-
 def encode2bytes(n):
     """encode `n` as byte string with length 2"""
     if n > 255:
         return i2bs(n)
     else:
         return bytes((0, n))
+
+
+STATUS_IDS = getStatusIds()
+COMMAND_IDS = {k: encode2bytes(v) for k, v in COMMAND_IDS.items()}
 
 
 if __name__ == "__main__":
