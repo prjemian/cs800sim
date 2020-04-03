@@ -10,11 +10,17 @@ status | `broadcast_status.CS800().emit_status()`
 commands | `controller.CS800controller().handler()`
 """
 
+import logging
 import threading
 
 import broadcast_status
 import controller
 import emit_id
+
+
+# logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__file__)
+# logger.setLevel(logging.DEBUG)
 
 
 def run_in_thread(func):
@@ -51,9 +57,13 @@ def status():
     cs800.emit_status()
 
 
+def receiver(results):
+    logger.info("(%s, %s)", results["datetime"], results["ip"])
+
+
 def commands():
     cs800 = controller.CS800controller()
-    cs800.handler()
+    cs800.handler(receiver)
 
 
 def main():
