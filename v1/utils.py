@@ -11,6 +11,69 @@ import psutil
 import socket
 
 
+TEMPERATURE_PARAMETERS = """
+StatusGasTemp StatusGasSetPoint
+DeviceMaxTemp
+DeviceMinTemp
+StatusColdheadTemp
+StatusCollarTemp
+StatusCryostatTemp
+StatusEvapTemp
+StatusNozzleSetTemp
+StatusNozzleTemp
+StatusSampleHolderTemp
+StatusShieldTemp
+StatusSuctSetTemp
+StatusSuctTemp
+StatusTargetTemp
+""".split()
+
+EPICS_PARAMETERS = """
+AutoFillLNLevel
+DeviceH8Firmware
+DeviceMaxTemp
+DeviceMinTemp
+DeviceSubType
+DeviceType
+SetUpDefaultEvapAdjust
+StatusAlarmCode
+StatusAveSuctHeat
+StatusColdheadHeat
+StatusColdheadTemp
+StatusCollarTemp
+StatusCryostatTemp
+StatusElapsed
+StatusEvapAdjust
+StatusEvapHeat
+StatusEvapTemp
+StatusGasError
+StatusGasFlow
+StatusGasHeat
+StatusGasSetPoint
+StatusGasTemp
+StatusLinePressure
+StatusNozzleHeat
+StatusNozzleSetTemp
+StatusNozzleTemp
+StatusPhaseId
+StatusRampRate
+StatusRemaining
+StatusRunMode
+StatusRunTime
+StatusSampleHeat
+StatusSampleHolderPresent
+StatusSampleHolderTemp
+StatusShieldHeat
+StatusShieldTemp
+StatusSuctSetTemp
+StatusSuctTemp
+StatusTargetTemp
+StatusTurboMode
+StatusVacuumGauge
+StatusVacuumSensor
+""".split()
+
+
 def getStatusIds():
     "return a dictionary of status ID symbols and ID codes"
     path = os.path.dirname(__file__)

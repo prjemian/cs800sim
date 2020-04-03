@@ -18,69 +18,6 @@ logger = logging.getLogger(__file__)
 # logger.setLevel(logging.DEBUG)
 
 
-TEMPERATURE_PARAMETERS = """
-StatusGasTemp StatusGasSetPoint
-DeviceMaxTemp
-DeviceMinTemp
-StatusColdheadTemp
-StatusCollarTemp
-StatusCryostatTemp
-StatusEvapTemp
-StatusNozzleSetTemp
-StatusNozzleTemp
-StatusSampleHolderTemp
-StatusShieldTemp
-StatusSuctSetTemp
-StatusSuctTemp
-StatusTargetTemp
-""".split()
-
-EPICS_PARAMETERS = """
-AutoFillLNLevel
-DeviceH8Firmware
-DeviceMaxTemp
-DeviceMinTemp
-DeviceSubType
-DeviceType
-SetUpDefaultEvapAdjust
-StatusAlarmCode
-StatusAveSuctHeat
-StatusColdheadHeat
-StatusColdheadTemp
-StatusCollarTemp
-StatusCryostatTemp
-StatusElapsed
-StatusEvapAdjust
-StatusEvapHeat
-StatusEvapTemp
-StatusGasError
-StatusGasFlow
-StatusGasHeat
-StatusGasSetPoint
-StatusGasTemp
-StatusLinePressure
-StatusNozzleHeat
-StatusNozzleSetTemp
-StatusNozzleTemp
-StatusPhaseId
-StatusRampRate
-StatusRemaining
-StatusRunMode
-StatusRunTime
-StatusSampleHeat
-StatusSampleHolderPresent
-StatusSampleHolderTemp
-StatusShieldHeat
-StatusShieldTemp
-StatusSuctSetTemp
-StatusSuctTemp
-StatusTargetTemp
-StatusTurboMode
-StatusVacuumGauge
-StatusVacuumSensor
-""".split()
-
-
 class CS800:
     """
     simulate the CS800 controller
@@ -96,7 +33,7 @@ class CS800:
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self.sock.settimeout(0.2)
 
-        self.status_keys = EPICS_PARAMETERS
+        self.status_keys = utils.EPICS_PARAMETERS
         self.offset_temperature = 2.5   # add realism to simulator
 
         # set some initial values, not typical though
@@ -110,9 +47,12 @@ class CS800:
         value = sp + self.offset_temperature + 1.5*np.random.standard_normal()
         self.controller_memory["StatusGasTemp"] = value
         self.controller_memory["time"] = time.time()
-        for parm in TEMPERATURE_PARAMETERS:
-            if parm not in "StatusGasTemp StatusGasSetPoint".split():
-                self.controller_memory[parm] = 150 + 5*np.random.standard_normal()
+        for parm in self.status_ids.keys():
+            if parm in utils.TEMPERATURE_PARAMETERS:
+                if parm not in "StatusGasTemp StatusGasSetPoint".split():
+                    self.controller_memory[parm] = 150 + 5*np.random.standard_normal()
+            else:
+                self.controller_memory[parm] = int(300 + 500*np.random.random())
         return value
     
     def create_message(self):
@@ -145,13 +85,13 @@ class CS800:
         footer = bytes((0xab, 0xaa))
 
         data = b""
-        for parm in self.status_keys:
+        for parm in self.status_ids.keys():
             parm_id = self.status_ids[parm]
             value = self.controller_memory[parm]
-            if parm in TEMPERATURE_PARAMETERS:
+            if parm in utils.TEMPERATURE_PARAMETERS:
                 value = int(value*100 + 0.5)    # report T in centiKelvin
             data += parm_id + ensure(value)
-            ll = len(data)
+            # ll = len(data)
             # logger.debug("%d ParamID=%s: msg=%s", ll, parm, parm_id + ensure(value))
 
         data_size = ensure(len(data))
@@ -180,51 +120,3 @@ class CS800:
 if __name__ == "__main__":
     cs800 = CS800()
     cs800.emit_status()
-
-
-"""
-These are the StatusID keys used by EPICS
-
-AutoFillLNLevel
-DeviceH8Firmware
-DeviceMaxTemp
-DeviceMinTemp
-DeviceSubType
-DeviceType
-SetUpDefaultEvapAdjust
-StatusAlarmCode
-StatusAveSuctHeat
-StatusColdheadHeat
-StatusColdheadTemp
-StatusCollarTemp
-StatusCryostatTemp
-StatusElapsed
-StatusEvapAdjust
-StatusEvapHeat
-StatusEvapTemp
-StatusGasError
-StatusGasFlow
-StatusGasHeat
-StatusGasSetPoint
-StatusGasTemp
-StatusLinePressure
-StatusNozzleHeat
-StatusNozzleSetTemp
-StatusNozzleTemp
-StatusPhaseId
-StatusRampRate
-StatusRemaining
-StatusRunMode
-StatusRunTime
-StatusSampleHeat
-StatusSampleHolderPresent
-StatusSampleHolderTemp
-StatusShieldHeat
-StatusShieldTemp
-StatusSuctSetTemp
-StatusSuctTemp
-StatusTargetTemp
-StatusTurboMode
-StatusVacuumGauge
-StatusVacuumSensor
-"""
