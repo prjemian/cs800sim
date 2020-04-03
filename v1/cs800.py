@@ -58,7 +58,7 @@ def status():
 
 
 def receiver(results):
-    logger.info("(%s, %s)", results["datetime"], results["ip"])
+    print(f"({results['datetime']}, { results['ip']})")
 
 
 def commands():
