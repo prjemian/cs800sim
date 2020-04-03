@@ -60,6 +60,8 @@ class CS800controller:
             # arg2 = utils.bs2i(data[4:2])
             # cksum = utils.bs2i(data[6])
 
+            # TODO: confirm the checksum or report CHECKSUM_ERROR
+
             command_data = dict(
                 time=t,
                 datetime=iso,

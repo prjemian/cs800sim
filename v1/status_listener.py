@@ -38,6 +38,8 @@ def get_status(sock):
     # The HEADER is defined as 0xAAAB and the FOOTER is defined as 0xABAA.
     data_size = utils.bs2i(data[2:4])
 
+    # TODO: confirm the checksum or report CHECKSUM_ERROR
+
     base = 4
     status = {}
     for offset in range(0, data_size, 4):
