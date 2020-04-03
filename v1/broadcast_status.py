@@ -18,6 +18,69 @@ logger = logging.getLogger(__file__)
 # logger.setLevel(logging.DEBUG)
 
 
+TEMPERATURE_PARAMETERS = """
+StatusGasTemp StatusGasSetPoint
+DeviceMaxTemp
+DeviceMinTemp
+StatusColdheadTemp
+StatusCollarTemp
+StatusCryostatTemp
+StatusEvapTemp
+StatusNozzleSetTemp
+StatusNozzleTemp
+StatusSampleHolderTemp
+StatusShieldTemp
+StatusSuctSetTemp
+StatusSuctTemp
+StatusTargetTemp
+""".split()
+
+EPICS_PARAMETERS = """
+AutoFillLNLevel
+DeviceH8Firmware
+DeviceMaxTemp
+DeviceMinTemp
+DeviceSubType
+DeviceType
+SetUpDefaultEvapAdjust
+StatusAlarmCode
+StatusAveSuctHeat
+StatusColdheadHeat
+StatusColdheadTemp
+StatusCollarTemp
+StatusCryostatTemp
+StatusElapsed
+StatusEvapAdjust
+StatusEvapHeat
+StatusEvapTemp
+StatusGasError
+StatusGasFlow
+StatusGasHeat
+StatusGasSetPoint
+StatusGasTemp
+StatusLinePressure
+StatusNozzleHeat
+StatusNozzleSetTemp
+StatusNozzleTemp
+StatusPhaseId
+StatusRampRate
+StatusRemaining
+StatusRunMode
+StatusRunTime
+StatusSampleHeat
+StatusSampleHolderPresent
+StatusSampleHolderTemp
+StatusShieldHeat
+StatusShieldTemp
+StatusSuctSetTemp
+StatusSuctTemp
+StatusTargetTemp
+StatusTurboMode
+StatusVacuumGauge
+StatusVacuumSensor
+""".split()
+
+
 class CS800:
     """
     simulate the CS800 controller
@@ -33,23 +96,26 @@ class CS800:
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self.sock.settimeout(0.2)
 
-        self.status_keys = ["StatusGasTemp",]
+        self.status_keys = EPICS_PARAMETERS
         self.offset_temperature = 2.5   # add realism to simulator
 
         # set some initial values, not typical though
-        self.controller_memory = {k: 0 for k in self.status_ids.keys()}
-        self.controller_memory["StatusGasTemp"] = 100.0
+        self.controller_memory = {k: utils.bs2i(v) for k, v in self.status_ids.items()}
+        self.controller_memory["StatusGasSetPoint"] = 100.0
         self.readGasTemp()
     
     def readGasTemp(self):
-        "simulate"
+        "simulated temperatures"
         sp = self.controller_memory["StatusGasSetPoint"]
         value = sp + self.offset_temperature + 1.5*np.random.standard_normal()
         self.controller_memory["StatusGasTemp"] = value
         self.controller_memory["time"] = time.time()
+        for parm in TEMPERATURE_PARAMETERS:
+            if parm not in "StatusGasTemp StatusGasSetPoint".split():
+                self.controller_memory[parm] = 150 + 5*np.random.standard_normal()
         return value
     
-    def create_message(self, paramID):
+    def create_message(self):
         """
         format the message to be sent
 
@@ -69,25 +135,29 @@ class CS800:
 
         The HEADER is defined as 0xAAAB and the FOOTER is defined as 0xABAA.
         """
-        header = bytes((0xaa, 0xab))
-        footer = bytes((0xab, 0xaa))
-        data_values = bytes(4)
-
-        param_id_bs = self.status_ids[paramID]
-        value = self.controller_memory[paramID]
-        if paramID in ("StatusGasTemp", "StatusGasSetPoint"):
-            value = int(value*100 + 0.5)    # report T in centiKelvin
-            data_values = utils.i2bs(value)
-
-        def convert(n):     # ensure output is 2 bytes long
+        def ensure(n):     # ensure output is 2 bytes long
             if n > 255:
                 return utils.i2bs(n)
             else:
                 return bytes((0, n))
-        data_size = convert(len(data_values))
-        cksum = convert(sum([c for c in param_id_bs + data_values]) % 65536)
 
-        msg = header + data_size + param_id_bs + data_values + cksum + footer
+        header = bytes((0xaa, 0xab))
+        footer = bytes((0xab, 0xaa))
+
+        data = b""
+        for parm in self.status_keys:
+            parm_id = self.status_ids[parm]
+            value = self.controller_memory[parm]
+            if parm in TEMPERATURE_PARAMETERS:
+                value = int(value*100 + 0.5)    # report T in centiKelvin
+            data += parm_id + ensure(value)
+            ll = len(data)
+            # logger.debug("%d ParamID=%s: msg=%s", ll, parm, parm_id + ensure(value))
+
+        data_size = ensure(len(data))
+        cksum = ensure(sum([c for c in data]) % 65536)
+
+        msg = header + data_size + data + cksum + footer
         logger.debug("status message: %s", msg)
         return msg
 
@@ -101,12 +171,9 @@ class CS800:
         while True:
             self.readGasTemp()
             # print(self.controller_memory)
-            # TODO: multiple ParamIDs are sent together
-            # TODO: all data values are 16-bit integers
-            for parm in self.status_keys:
-                msg = self.create_message(parm)
-                logger.debug("%s = %s : msg = %s", parm, str(self.controller_memory[parm]), msg)
-                self.sock.sendto(msg, (self.udp_host, self.udp_port))
+            msg = self.create_message()
+            logger.debug("msg = %s", msg)
+            self.sock.sendto(msg, (self.udp_host, self.udp_port))
             time.sleep(1)
 
 

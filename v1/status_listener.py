@@ -38,24 +38,25 @@ def get_status(sock):
 
     # The HEADER is defined as 0xAAAB and the FOOTER is defined as 0xABAA.
     data_size = utils.bs2i(data[2:4])
-    # TODO: multiple ParamIDs are sent together
-    # TODO: all data values are 16-bit integers
-    parm = REVERSE_IDS[data[4:6]]
-    values = data[6:6+data_size]
-    if data_size <= 6:
-        values = utils.bs2i(values)
-    if parm.endswith("Temp"):
-        values = values/100.0
+
+    # # TODO: multiple ParamIDs are sent together
+    # # TODO: all data values are 16-bit integers
+    # parm = REVERSE_IDS[data[4:6]]
+    # values = data[6:6+data_size]
+    # if data_size <= 6:
+    #     values = utils.bs2i(values)
+    # if parm.endswith("Temp"):
+    #     values = values/100.0
 
     return dict(
         time=t,
-        iso8601=iso,
+        datetime=iso,
         ip=ip,
         port=port,
         data=data,
         data_size=data_size,
-        statusID=parm,
-        value=values,
+        # statusID=parm,
+        # value=values,
     )
 
 
