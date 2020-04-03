@@ -73,11 +73,6 @@ class CS800:
 
         The HEADER is defined as 0xAAAB and the FOOTER is defined as 0xABAA.
         """
-        def ensure(n):     # ensure output is 2 bytes long
-            if n > 255:
-                return utils.i2bs(n)
-            else:
-                return bytes((0, n))
 
         header = bytes((0xaa, 0xab))
         footer = bytes((0xab, 0xaa))
@@ -88,12 +83,12 @@ class CS800:
             value = self.controller_memory[parm]
             if parm in utils.TEMPERATURE_PARAMETERS:
                 value = int(value*100 + 0.5)    # report T in centiKelvin
-            data += parm_id + ensure(value)
+            data += parm_id + utils.encode2bytes(value)
             # ll = len(data)
-            # logger.debug("%d ParamID=%s: msg=%s", ll, parm, parm_id + ensure(value))
+            # logger.debug("%d ParamID=%s: msg=%s", ll, parm, parm_id + utils.encode2bytes(value))
 
-        data_size = ensure(len(data))
-        cksum = ensure(sum([c for c in data]) % 65536)
+        data_size = utils.encode2bytes(len(data))
+        cksum = utils.encode2bytes(sum([c for c in data]) % 65536)
 
         msg = header + data_size + data + cksum + footer
         logger.debug("status message: %s", msg)

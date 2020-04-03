@@ -73,19 +73,23 @@ StatusVacuumGauge
 StatusVacuumSensor
 """.split()
 
+COMMAND_IDS = dict(
+    RESTART=10,         # Restart a Cryostream which has shutdown
+    RAMP=11,            # Ramp command identifier - parameters follow
+    PLAT=12,            # Plat command identifier - parameter follows
+    HOLD=13,            # Hold command identifier - enter programmed Hold
+    COOL=14,            # Cool command identifier - parameter follows
+    END=15,             # End command identifier - parameter follows 
+    PURGE=16,           # Purge command identifier
+    PAUSE=17,           # Pause command identifier - enter temporary Hold
+    RESUME=18,          # Resume command identifier - exit temporary Hold 
+    STOP=19,            # Stop command identifier
+    TURBO=20,           # Turbo command identifier - parameter follows
+    SETSTATUSFORMAT=40, # Set status packet format - parameter follows 
+)
 
-def getStatusIds():
-    "return a dictionary of status ID symbols and ID codes"
-    path = os.path.dirname(__file__)
-    with open(os.path.join(path, "status_ids.json"), "r") as fp:
-        status_ids = json.load(fp)
-    for k, v in status_ids.items():
-        status_ids[k] = i2bs(v)
-    
-    return status_ids
-
-
-STATUS_IDS = getStatusIds()
+TURBO_OFF = 0
+TURBO_ON = 1
 
 
 def getActiveIPconnections():
@@ -175,6 +179,28 @@ def bs2i(bs):
     for b in bs:
         i = i*256 + b
     return i
+
+
+def getStatusIds():
+    "return a dictionary of status ID symbols and ID codes"
+    path = os.path.dirname(__file__)
+    with open(os.path.join(path, "status_ids.json"), "r") as fp:
+        status_ids = json.load(fp)
+    for k, v in status_ids.items():
+        status_ids[k] = i2bs(v)
+    
+    return status_ids
+
+
+STATUS_IDS = getStatusIds()
+
+
+def encode2bytes(n):
+    """encode `n` as byte string with length 2"""
+    if n > 255:
+        return i2bs(n)
+    else:
+        return bytes((0, n))
 
 
 if __name__ == "__main__":

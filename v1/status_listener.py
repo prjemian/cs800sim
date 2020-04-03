@@ -67,7 +67,7 @@ def listen_for_status():
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     sock.bind((STATUS_HOST, STATUS_PORT))
 
-    logger.info("Status updates from %s on port %d", STATUS_HOST, STATUS_PORT)
+    logger.info("Status updates from '%s' on port %d", STATUS_HOST, STATUS_PORT)
 
     while True:
         status = get_status(sock)
