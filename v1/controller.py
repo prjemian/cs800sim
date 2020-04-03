@@ -50,19 +50,25 @@ class CS800controller:
             dt = datetime.datetime.fromtimestamp(t)
             iso = dt.isoformat(sep=" ", timespec="milliseconds")
             ip, port = addr
+            results = dict(
+                time=t,
+                datetime=iso,
+                ip=ip,
+                port=port,
+                )
+
+            if len(data) != 7:
+                logger.error("Command message wrong length (%d)", len(data))
+                results["error"] = "Command message wrong length"
+                return results
 
             # confirm the checksum or report CHECKSUM_ERROR
             reported_cksum = utils.bs2i(data[6])
             calc_cksum = utils.checksum(data[:6], 1)
             if calc_cksum != reported_cksum:
                 logger.error("Command checksum error")
-                return dict(
-                    time=t,
-                    datetime=iso,
-                    ip=ip,
-                    port=port,
-                    error="checksum error"
-                    )
+                results["error"] = "Command checksum error"
+                return results
 
             # COMMAND_ID (high byte), COMMAND_ID (low byte)
             # PARAM1 (high byte), PARAM1 (low byte)
@@ -72,19 +78,12 @@ class CS800controller:
             arg1 = utils.bs2i(data[2:4])
             arg2 = utils.bs2i(data[4:2])
 
-            command_data = dict(
-                time=t,
-                datetime=iso,
-                ip=ip,
-                port=port,
-                # data=data,
-                command_id=command_id,
-                arg1=arg1,
-                arg2=arg2,
-            )
-            logger.debug("command: %s", str(command_data))
+            results["command_id"] = command_id
+            results["arg1"] = arg1
+            results["arg2"] = arg2
+            logger.debug("command: %s", str(results))
             if callback is not None:
-                callback(command_data)
+                callback(results)
 
 
 def command_handler():
