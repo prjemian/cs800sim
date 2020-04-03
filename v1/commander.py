@@ -21,7 +21,6 @@ logger = logging.getLogger(__file__)
 # logger.setLevel(logging.DEBUG)
 
 COMMAND_PORT = 30305
-COMMAND_HOST = ""
 REVERSE_IDS = {v:k for k, v in utils.COMMAND_IDS.items()}
 
 
@@ -34,7 +33,8 @@ class CS800controller:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         # # Enable broadcasting mode
         # self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        self.sock.bind((cs800_host, COMMAND_PORT))
+        self.host = cs800_host
+        # self.sock.bind((cs800_host, COMMAND_PORT))
 
         logger.info("Send commands to '%s' on port %d", cs800_host, COMMAND_PORT)
 
@@ -48,10 +48,9 @@ class CS800controller:
         # CHECKSUM_BYTE - an 8-bit sum of bytes. 
         command_id = utils.COMMAND_IDS[command.upper()]
         msg = command_id + utils.encode2bytes(arg1) + utils.encode2bytes(arg2)
-        cksum = utils.i2bs(sum([c for c in msg]) % 256)
-        msg += cksum
+        msg += utils.i2bs(utils.checksum(msg))
         logger.debug("sending %s(%d,%d): msg=%s", command, arg1, arg2, msg)
-        self.sock.send(msg)
+        self.sock.sendto(msg, (self.host, COMMAND_PORT))
 
 
 def command_handler(host):
@@ -85,4 +84,6 @@ def command_handler(host):
 
 
 if __name__ == "__main__":
-    command_handler("192.168.144.99")
+    for ip in "192.168.144.99 192.168.144.113".split():
+        logger.info("Sending command set to %s", ip)
+        command_handler(ip)
