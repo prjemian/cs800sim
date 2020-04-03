@@ -77,7 +77,9 @@ class CS800controller:
         hold for `duration` minutes` : 1 .. 1400
         """
         if 1 <= duration <= 1440:   # no longer than a day
-            self.send_command("cool", int(duration + 0.5))
+            self.send_command("plat", int(duration + 0.5))
+    
+    plat = plateau
 
     def purge(self):
         """purge"""
@@ -135,7 +137,8 @@ def command_handler(host):
     cs800.turbo(utils.TURBO_ON)
     cs800.ramp(1, 80.12345)
     cs800.plateau(2)
-    cs800.cool(40.456789)
+    cs800.plateau(1)
+    cs800.cool(82.456789)
     cs800.end(360)
     cs800.turbo(utils.TURBO_OFF)
     cs800.purge()
