@@ -30,6 +30,7 @@ def announcer():
     msg = "{:16s}".format(netbios_name).encode()
     imac = int("0x" + mac_addr, 0)   # base=0: interpret exactly as a code literal
     msg += utils.i2bs(imac)
+    # FIXME: ensure that utils.i2bs(imac) is 6 bytes long! (leading 0x00 get truncated)
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
