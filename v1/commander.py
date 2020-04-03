@@ -52,6 +52,67 @@ class CS800controller:
         logger.debug("sending %s(%d,%d), length=%d: msg=%s", command, arg1, arg2, len(msg), msg)
         self.sock.sendto(msg, (self.host, COMMAND_PORT))
 
+    def cool(self, setpoint):
+        """
+        cool to T=`setpoint`: 80 .. T now
+        """
+        if 80 <= setpoint <= 400:   # max should be current temperature
+            self.send_command("cool", int(setpoint*100 + 0.5))
+
+    def end(self, rate):
+        """
+        TODO
+
+        * rate (K/hour): 1 .. 360
+        """
+        if 1 <= rate <= 360:
+            self.send_command("end", int(rate + 0.5))
+
+    def pause(self):
+        """pause"""
+        self.send_command("pause")
+
+    def plateau(self, duration):
+        """
+        hold for `duration` minutes` : 1 .. 1400
+        """
+        if 1 <= duration <= 1440:   # no longer than a day
+            self.send_command("cool", int(duration + 0.5))
+
+    def purge(self):
+        """purge"""
+        self.send_command("purge")
+
+    def ramp(self, rate, setpoint):
+        """
+        ramp at `rate`/hour to T=`setpoint`
+
+        * rate (K/hour): 1 .. 360
+        * setpoint (K): 80 .. 400 (500 for + model)
+        """
+        if 1 <= rate <= 360 and 80 <= setpoint <= 400:
+            self.send_command("ramp", int(rate+0.5), int(setpoint*100 + 0.5))
+
+    def restart(self):
+        """restart"""
+        self.send_command("restart")
+
+    def resume(self):
+        """resume"""
+        self.send_command("resume")
+
+    def stop(self):
+        """stop"""
+        self.send_command("stop")
+
+    def turbo(self, mode):
+        """
+        set/clear turbo mode: 1=set, anything else is unset
+        """
+        if mode != utils.TURBO_ON:
+            mode = utils.TURBO_OFF
+        self.send_command("turbo", mode)
+
 
 def command_handler(host):
     """
@@ -70,17 +131,17 @@ def command_handler(host):
     # TURBO=20,           # Turbo command identifier - parameter follows
     # SETSTATUSFORMAT=40, # Set status packet format - parameter follows 
     cs800 = CS800controller(host)
-    cs800.send_command("restart")
-    cs800.send_command("turbo", utils.TURBO_ON)
-    cs800.send_command("ramp", 1, 80*100)
-    cs800.send_command("plat", 2)
-    cs800.send_command("cool", 40*100)
-    cs800.send_command("end", 360)
-    cs800.send_command("turbo", utils.TURBO_OFF)
-    cs800.send_command("purge")
-    cs800.send_command("pause")
-    cs800.send_command("resume")
-    cs800.send_command("stop")
+    cs800.restart()
+    cs800.turbo(utils.TURBO_ON)
+    cs800.ramp(1, 80.12345)
+    cs800.plateau(2)
+    cs800.cool(40.456789)
+    cs800.end(360)
+    cs800.turbo(utils.TURBO_OFF)
+    cs800.purge()
+    cs800.pause()
+    cs800.resume()
+    cs800.stop()
 
 
 if __name__ == "__main__":
