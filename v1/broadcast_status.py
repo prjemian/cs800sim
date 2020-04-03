@@ -24,8 +24,6 @@ class CS800:
     """
 
     def __init__(self):
-        self.status_ids = utils.getStatusIds()
-
         self.udp_port = 30304			        # CS800 status broadcast port
         self.udp_host = "<broadcast>"            # always broadcast
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -37,7 +35,7 @@ class CS800:
         self.offset_temperature = 2.5   # add realism to simulator
 
         # set some initial values, not typical though
-        self.controller_memory = {k: utils.bs2i(v) for k, v in self.status_ids.items()}
+        self.controller_memory = {k: utils.bs2i(v) for k, v in utils.STATUS_IDS.items()}
         self.controller_memory["StatusGasSetPoint"] = 100.0
         self.readGasTemp()
     
@@ -47,7 +45,7 @@ class CS800:
         value = sp + self.offset_temperature + 1.5*np.random.standard_normal()
         self.controller_memory["StatusGasTemp"] = value
         self.controller_memory["time"] = time.time()
-        for parm in self.status_ids.keys():
+        for parm in utils.STATUS_IDS.keys():
             if parm in utils.TEMPERATURE_PARAMETERS:
                 if parm not in "StatusGasTemp StatusGasSetPoint".split():
                     self.controller_memory[parm] = 150 + 5*np.random.standard_normal()
@@ -85,8 +83,8 @@ class CS800:
         footer = bytes((0xab, 0xaa))
 
         data = b""
-        for parm in self.status_ids.keys():
-            parm_id = self.status_ids[parm]
+        for parm in utils.STATUS_IDS.keys():
+            parm_id = utils.STATUS_IDS[parm]
             value = self.controller_memory[parm]
             if parm in utils.TEMPERATURE_PARAMETERS:
                 value = int(value*100 + 0.5)    # report T in centiKelvin

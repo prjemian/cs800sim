@@ -17,8 +17,7 @@ logger = logging.getLogger(__file__)
 
 STATUS_PORT = 30304
 STATUS_HOST = ""
-STATUS_IDS = utils.getStatusIds()
-REVERSE_IDS = {v:k for k, v in STATUS_IDS.items()}
+REVERSE_IDS = {v:k for k, v in utils.STATUS_IDS.items()}
 
 
 def get_status(sock):

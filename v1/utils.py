@@ -85,6 +85,9 @@ def getStatusIds():
     return status_ids
 
 
+STATUS_IDS = getStatusIds()
+
+
 def getActiveIPconnections():
     """
     get the list of IP numbers that have established connections
