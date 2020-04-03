@@ -11,7 +11,7 @@ import time
 import utils
 
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__file__)
 # logger.setLevel(logging.DEBUG)
 

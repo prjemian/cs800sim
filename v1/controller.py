@@ -18,7 +18,7 @@ import time
 
 import utils
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__file__)
 # logger.setLevel(logging.DEBUG)
 
@@ -40,7 +40,7 @@ class CS800controller:
 
         logger.info("Commands from '%s' on port %d", COMMAND_HOST, COMMAND_PORT)
 
-    def handler(self):
+    def handler(self, callback=None):
         """
         handle CS800 commands from UDP
         """
@@ -73,6 +73,8 @@ class CS800controller:
                 # arg2=arg2,
             )
             logger.debug("command: %s", str(command_data))
+            if callback is not None:
+                callback(command_data)
 
 
 def command_handler():
