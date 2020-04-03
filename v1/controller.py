@@ -60,7 +60,9 @@ class CS800controller:
             if len(data) != 7:
                 logger.error("Command message wrong length (%d)", len(data))
                 results["error"] = "Command message wrong length"
-                return results
+                if callback is not None:
+                    callback(results)
+                    return
 
             # confirm the checksum or report CHECKSUM_ERROR
             reported_cksum = utils.bs2i(data[6])
@@ -68,7 +70,9 @@ class CS800controller:
             if calc_cksum != reported_cksum:
                 logger.error("Command checksum error")
                 results["error"] = "Command checksum error"
-                return results
+                if callback is not None:
+                    callback(results)
+                    return
 
             # COMMAND_ID (high byte), COMMAND_ID (low byte)
             # PARAM1 (high byte), PARAM1 (low byte)
