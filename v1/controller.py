@@ -51,26 +51,36 @@ class CS800controller:
             iso = dt.isoformat(sep=" ", timespec="milliseconds")
             ip, port = addr
 
-            # # COMMAND_ID (high byte), COMMAND_ID (low byte)
-            # # PARAM1 (high byte), PARAM1 (low byte)
-            # # PARAM2 (high byte), PARAM2 (low byte)
-            # # CHECKSUM_BYTE - an 8-bit sum of bytes. 
-            # command_id = REVERSE_IDS[data[0:2]]
-            # arg1 = utils.bs2i(data[2:4])
-            # arg2 = utils.bs2i(data[4:2])
-            # cksum = utils.bs2i(data[6])
+            # confirm the checksum or report CHECKSUM_ERROR
+            reported_cksum = utils.bs2i(data[6])
+            calc_cksum = utils.checksum(data[:6], 1)
+            if calc_cksum != reported_cksum:
+                logger.error("Command checksum error")
+                return dict(
+                    time=t,
+                    datetime=iso,
+                    ip=ip,
+                    port=port,
+                    error="checksum error"
+                    )
 
-            # TODO: confirm the checksum or report CHECKSUM_ERROR
+            # COMMAND_ID (high byte), COMMAND_ID (low byte)
+            # PARAM1 (high byte), PARAM1 (low byte)
+            # PARAM2 (high byte), PARAM2 (low byte)
+            # CHECKSUM_BYTE - an 8-bit sum of bytes. 
+            command_id = REVERSE_IDS[data[0:2]]
+            arg1 = utils.bs2i(data[2:4])
+            arg2 = utils.bs2i(data[4:2])
 
             command_data = dict(
                 time=t,
                 datetime=iso,
                 ip=ip,
                 port=port,
-                data=data,
-                # command_id=command_id,
-                # arg1=arg1,
-                # arg2=arg2,
+                # data=data,
+                command_id=command_id,
+                arg1=arg1,
+                arg2=arg2,
             )
             logger.debug("command: %s", str(command_data))
             if callback is not None:
