@@ -78,10 +78,9 @@ class CS800controller:
             # PARAM1 (high byte), PARAM1 (low byte)
             # PARAM2 (high byte), PARAM2 (low byte)
             # CHECKSUM_BYTE - an 8-bit sum of bytes. 
-            dint = [int(c) for c in data]
             command_id = REVERSE_IDS[data[0:2]]
             arg1 = utils.bs2i(data[2:4])
-            arg2 = utils.bs2i(data[4:2])
+            arg2 = utils.bs2i(data[4:6])
 
             results["command_id"] = command_id
             results["arg1"] = arg1
