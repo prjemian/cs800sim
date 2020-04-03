@@ -45,7 +45,7 @@ def get_status(sock):
         parm = REVERSE_IDS[data[base+offset:base+offset+2]]
         value = utils.bs2i(data[base+2+offset:base+2+offset+2])
         if parm in utils.TEMPERATURE_PARAMETERS:
-            value = value/100.0
+            value = value/100.0     # T communicated in centiKelvin
         status[parm] = value
 
     return dict(
@@ -53,22 +53,22 @@ def get_status(sock):
         datetime=iso,
         ip=ip,
         port=port,
-        data=data,
+        # data=data,
         data_size=data_size,
         status=status,
     )
 
 
-def listen_for_status(host=STATUS_HOST):
+def listen_for_status():
     """
     listen for the UDP status broadcasts of the CS800 controller(s)
     """
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Enable broadcasting mode
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    sock.bind((host, STATUS_PORT))
+    sock.bind((STATUS_HOST, STATUS_PORT))
 
-    logger.info("Status updates from %s on port %d", host, STATUS_PORT)
+    logger.info("Status updates from %s on port %d", STATUS_HOST, STATUS_PORT)
 
     while True:
         status = get_status(sock)
