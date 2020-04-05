@@ -22,6 +22,9 @@ import emit_id
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 
+cs800_status = None
+cs800_commands = None
+
 
 def run_in_thread(func):
     """
@@ -53,17 +56,27 @@ def identity():
 
 @run_in_thread
 def status():
-    cs800 = broadcast_status.CS800()
-    cs800.emit_status()
+    global cs800_status
+    cs800_status = broadcast_status.CS800()
+    cs800_status.emit_status()
 
 
 def receiver(results):
     print(results)
+    cmd = results.get("command_id")
+    if cmd == "COOL":
+        sp = results["arg1"] * 0.01
+        cs800_status.controller_memory["StatusGasSetPoint"] = sp
+    elif cmd == "RAMP":
+        sp = results["arg2"] * 0.01
+        # TODO: simulate arg1, K/hour ramp rate
+        cs800_status.controller_memory["StatusGasSetPoint"] = sp
 
 
 def commands():
-    cs800 = controller.CS800controller()
-    cs800.handler(receiver)
+    global cs800_commands
+    cs800_commands = controller.CS800controller()
+    cs800_commands.handler(receiver)
 
 
 def main():

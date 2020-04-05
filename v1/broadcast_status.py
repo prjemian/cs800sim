@@ -32,18 +32,27 @@ class CS800:
         self.sock.settimeout(0.2)
 
         self.status_keys = utils.EPICS_PARAMETERS
-        self.offset_temperature = 2.5   # add realism to simulator
+        # self.offset_temperature = 2.5   # add realism to simulator
+        self.smoothing = 0.90   # 0 .. 1 : higher is slower to converge
+        self.noise_amplitude = 0.25       # RMS fluctuations, K
 
         # set some initial values, not typical though
         self.controller_memory = {k: utils.bs2i(v) for k, v in utils.STATUS_IDS.items()}
         self.controller_memory["StatusGasSetPoint"] = 100.0
+        self.controller_memory["StatusGasTemp"] = 100.0
         self.readGasTemp()
     
     def readGasTemp(self):
         "simulated temperatures"
         sp = self.controller_memory["StatusGasSetPoint"]
-        value = sp + self.offset_temperature + 1.5*np.random.standard_normal()
-        self.controller_memory["StatusGasTemp"] = value
+        sp = max(80, min(300, sp))
+        old = self.controller_memory["StatusGasTemp"]
+        old = max(80, min(300, old))
+        eta = self.smoothing
+        value = eta*old + (1 - eta)*sp
+        noise = self.noise_amplitude * np.random.standard_normal()
+        self.controller_memory["StatusGasTemp"] = value + noise
+
         self.controller_memory["time"] = time.time()
         for parm in utils.STATUS_IDS.keys():
             if parm in utils.TEMPERATURE_PARAMETERS:
