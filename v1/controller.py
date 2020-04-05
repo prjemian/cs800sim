@@ -58,8 +58,8 @@ class CS800controller:
                 )
 
             if len(data) != 7:
-                logger.error("Command message wrong length (%d)", len(data))
-                results["error"] = "Command message wrong length"
+                results["error"] = f"Command message wrong length {len(data)}: {[int(c) for c in data]}"
+                logger.error(results["error"])
                 if callback is not None:
                     callback(results)
                 continue
