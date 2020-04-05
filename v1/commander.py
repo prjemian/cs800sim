@@ -17,7 +17,7 @@ import time
 import utils
 
 logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 
 COMMAND_PORT = 30305

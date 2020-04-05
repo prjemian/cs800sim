@@ -14,7 +14,7 @@ import utils
 
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 
 
