@@ -18,10 +18,49 @@ logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 
 
+def rand(base, width):
+    return base + width*np.random.random()
+
+
+def rand_norm(base, width):
+    return base + width*np.random.standard_normal()
+
+
 class CS800:
     """
     simulate the CS800 controller
     """
+
+    run_modes = [
+        "Startup",
+        "Startup Fail",
+        "Startup OK",
+        "Run",
+        "Setup",
+        "Shutdown OK",
+        "Shutdown Fail",
+        ]
+    phase_ids = [
+        "Ramp",
+        "Cool",
+        "Plat",
+        "Hold",
+        "End",
+        "Purge",
+        "Delete Phase",
+        "Load Program",
+        "Save Program",
+        "Soak",
+        "Wait",
+        ]
+    constant_parameters = """
+        StatusGasTemp StatusGasSetPoint
+        StatusRunMode StatusPhaseId
+        SetUpControllerNumber
+        SetUpCommissionDate
+        SetUpColdheadNumber
+        DeviceH8Firmware
+        """.split()
 
     def __init__(self):
         self.udp_port = 30304			        # CS800 status broadcast port
@@ -34,32 +73,61 @@ class CS800:
         self.status_keys = utils.EPICS_PARAMETERS
         # self.offset_temperature = 2.5   # add realism to simulator
         self.smoothing = 0.90   # 0 .. 1 : higher is slower to converge
-        self.noise_amplitude = 0.25       # RMS fluctuations, K
+        self.noise_amplitude = 0.1       # RMS fluctuations, K
 
         # set some initial values, not typical though
-        self.controller_memory = {k: utils.bs2i(v) for k, v in utils.STATUS_IDS.items()}
-        self.controller_memory["StatusGasSetPoint"] = 100.0
-        self.controller_memory["StatusGasTemp"] = 100.0
+        self.memory = {k: utils.bs2i(v) for k, v in utils.STATUS_IDS.items()}
+        self.memory["StatusGasSetPoint"] = 100.0
+        self.memory["StatusGasTemp"] = 100.0
+
+        self._run_mode = "Startup"
+        self._phase_id = "End"
+        self.memory["StatusRunMode"] = self.run_mode
+        self.memory["StatusPhaseId"] = self.phase_id
+
+        self.memory["SetUpControllerNumber"] = int(rand(3100, 30))
+        self.memory["SetUpColdheadNumber"] = int(rand(3220, 30))
+        self.memory["SetUpCommissionDate"] = int(rand(3330, 30))
+        self.memory["DeviceH8Firmware"] = int(rand(1100, 30))
+
         self.readGasTemp()
-    
+
+    @property
+    def phase_id(self):
+        return self.phase_ids.index(self._phase_id)
+
+    @phase_id.setter
+    def set_phase_id(self, text):
+        if text in self.phase_ids:
+            self._phase_id = text
+
+    @property
+    def run_mode(self):
+        return self.run_modes.index(self._run_mode)
+
+    @run_mode.setter
+    def set_run_mode(self, text):
+        if text in self.run_modes:
+            self._run_mode = text
+
     def readGasTemp(self):
         "simulated temperatures"
-        sp = self.controller_memory["StatusGasSetPoint"]
+        sp = self.memory["StatusGasSetPoint"]
         sp = max(80, min(300, sp))
-        old = self.controller_memory["StatusGasTemp"]
+        old = self.memory["StatusGasTemp"]
         old = max(80, min(300, old))
         eta = self.smoothing
         value = eta*old + (1 - eta)*sp
-        noise = self.noise_amplitude * np.random.standard_normal()
-        self.controller_memory["StatusGasTemp"] = value + noise
+        noise = rand_norm(0, self.noise_amplitude)
+        self.memory["StatusGasTemp"] = value + noise
 
-        self.controller_memory["time"] = time.time()
+        self.memory["time"] = time.time()
         for parm in utils.STATUS_IDS.keys():
-            if parm in utils.TEMPERATURE_PARAMETERS:
-                if parm not in "StatusGasTemp StatusGasSetPoint".split():
-                    self.controller_memory[parm] = 150 + 5*np.random.standard_normal()
-            else:
-                self.controller_memory[parm] = int(300 + 500*np.random.random())
+            if parm not in self.constant_parameters:
+                if parm in utils.TEMPERATURE_PARAMETERS:
+                        self.memory[parm] = rand_norm(150, 5)
+                else:
+                    self.memory[parm] = int(rand(300, 500))
         return value
     
     def create_message(self):
@@ -89,7 +157,7 @@ class CS800:
         data = b""
         for parm in utils.STATUS_IDS.keys():
             parm_id = utils.STATUS_IDS[parm]
-            value = self.controller_memory[parm]
+            value = self.memory[parm]
             if parm in utils.TEMPERATURE_PARAMETERS:
                 value = int(value*100 + 0.5)    # report T in centiKelvin
             data += parm_id + utils.encode2bytes(value)
@@ -112,7 +180,7 @@ class CS800:
         """
         while True:
             self.readGasTemp()
-            # print(self.controller_memory)
+            # print(self.memory)
             msg = self.create_message()
             logger.debug("msg = %s", msg)
             self.sock.sendto(msg, (self.udp_host, self.udp_port))

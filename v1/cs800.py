@@ -66,11 +66,11 @@ def receiver(results):
     cmd = results.get("command_id")
     if cmd == "COOL":
         sp = results["arg1"] * 0.01
-        cs800_status.controller_memory["StatusGasSetPoint"] = sp
+        cs800_status.memory["StatusGasSetPoint"] = sp
     elif cmd == "RAMP":
         sp = results["arg2"] * 0.01
         # TODO: simulate arg1, K/hour ramp rate
-        cs800_status.controller_memory["StatusGasSetPoint"] = sp
+        cs800_status.memory["StatusGasSetPoint"] = sp
 
 
 def commands():
