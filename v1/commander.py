@@ -148,6 +148,6 @@ def command_handler(host):
 
 
 if __name__ == "__main__":
-    for ip in "192.168.144.99 192.168.144.113".split():
+    for ip in "192.168.144.99 192.168.144.113 192.168.144.144".split():
         logger.info("Sending command set to %s", ip)
         command_handler(ip)
