@@ -80,8 +80,8 @@ class CS800:
         self.memory["StatusGasSetPoint"] = 100.0
         self.memory["StatusGasTemp"] = 100.0
 
-        self._run_mode = "Startup"
-        self._phase_id = "End"
+        self.run_mode = "Startup"
+        self.phase_id = "Cool"
         self.memory["StatusRunMode"] = self.run_mode
         self.memory["StatusPhaseId"] = self.phase_id
 
@@ -97,18 +97,20 @@ class CS800:
         return self.phase_ids.index(self._phase_id)
 
     @phase_id.setter
-    def set_phase_id(self, text):
+    def phase_id(self, text):
         if text in self.phase_ids:
             self._phase_id = text
+            self.memory["StatusPhaseId"] = self.phase_id
 
     @property
     def run_mode(self):
         return self.run_modes.index(self._run_mode)
 
     @run_mode.setter
-    def set_run_mode(self, text):
+    def run_mode(self, text):
         if text in self.run_modes:
             self._run_mode = text
+            self.memory["StatusRunMode"] = self.run_mode
 
     def readGasTemp(self):
         "simulated temperatures"
