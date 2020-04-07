@@ -7,7 +7,7 @@ CONTENTS
   - [Overview](#overview)
     - [identification](#identification)
     - [status](#status)
-    - [control](#control)
+    - [commands](#commands)
   - [Simulation](#simulation)
 
 ## Overview
@@ -19,7 +19,7 @@ port | type | communication
 ---- | ---- | ----
 30303 | broadcast | identification
 30304 | broadcast | status
-30305 | directed | control
+30305 | directed | commands
 
 ### identification
 
@@ -47,10 +47,13 @@ repeat | for all parameters:<br /> <table> <thead>  <tr>  <th>bits</th>  <th>des
 16 | footer: `0xABAA`
 
 
-### control
+### commands
 
-Control information is communicated with the controller
-by UDP over port 30305.  The The binary format is:
+Commands are communicated to the controller
+by UDP over port 30305.  
+The controller does not reply to a command request.
+A command is directed to a specific controller by IP address.
+The binary format is:
 
 bits | description
 ---- | ----
