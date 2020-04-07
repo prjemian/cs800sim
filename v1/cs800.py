@@ -198,8 +198,9 @@ class StateMachine:
         self.set_time_remaining(time_left)
         sp = cs800_status.memory["StatusTargetTemp"]
         rate = cs800_status.memory["StatusRampRate"]
+        temp_now = cs800_status.memory["StatusGasTemp"]
 
-        if time_left < 0 or sp <= cs800_status.memory["StatusGasSetPoint"]:
+        if time_left < 0 or temp_now <= sp:
             # ramp time is over or set point reached
             cs800_status.memory["StatusGasSetPoint"] = sp
             self.set_time_remaining(0)
@@ -284,8 +285,9 @@ class StateMachine:
         self.set_time_remaining(time_left)
         sp = cs800_status.memory["StatusTargetTemp"]
         rate = cs800_status.memory["StatusRampRate"]
+        temp_now = cs800_status.memory["StatusGasTemp"]
 
-        if time_left < 0 or sp >= cs800_status.memory["StatusGasSetPoint"]:
+        if time_left < 0 or temp_now >= sp:
             # ramp time is over or set point reached
             cs800_status.memory["StatusGasSetPoint"] = sp
             self.set_time_remaining(0)
