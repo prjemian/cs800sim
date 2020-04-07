@@ -226,9 +226,9 @@ class StateMachine:
             self.handler = self.idle
             cs800_status.phase_id = self.idle_phase
             self.queue = [
-                dict(command_id="STOP", arg1=None, arg2=None, time=time.time()),
-                dict(command_id="PLAT", arg1=1, arg2=None, time=time.time()),
-                dict(command_id="RESTART", arg1=None, arg2=None, time=time.time()),
+                dict(command_id="STOP", arg1=0, arg2=0, time=time.time()),
+                dict(command_id="PLAT", arg1=1, arg2=0, time=time.time()),
+                dict(command_id="RESTART", arg1=0, arg2=0, time=time.time()),
                 ]
             return
 
