@@ -41,6 +41,7 @@ class CS800:
         StatusRampRate
         StatusTargetTemp
         StatusRemaining
+        StatusRunTime
         """.split()
 
     def __init__(self):
@@ -61,6 +62,8 @@ class CS800:
         self.memory["StatusGasSetPoint"] = 100.0
         self.memory["StatusGasTemp"] = 100.0
         self.memory["StatusTargetTemp"] = 100.0
+        self.memory["StatusRunTime"] = 0.0
+        self.start_time = time.time()
 
         self.run_mode = "Startup"
         self.phase_id = "Hold"
@@ -110,6 +113,7 @@ class CS800:
         value = eta*old + (1 - eta)*sp
         noise = rand_norm(0, self.noise_amplitude)
         self.memory["StatusGasTemp"] = value + noise
+        self.memory["StatusRunTime"] = (time.time() - self.start_time)/60.0
 
         self.memory["time"] = time.time()
         for parm in utils.STATUS_IDS.keys():
