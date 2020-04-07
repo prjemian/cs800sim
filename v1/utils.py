@@ -226,8 +226,6 @@ def getStatusIds():
 
 def encode2bytes(n):
     """encode `n` as byte string with length 2"""
-    if n < 0:
-        raise ValueError("value must be positive, received {}".format(n))
     if n > 255:
         return i2bs(n)
     else:
