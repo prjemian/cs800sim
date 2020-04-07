@@ -329,7 +329,7 @@ def identity():
 def status():
     global cs800_status
     cs800_status = broadcast_status.CS800()
-    # cs800_status.smoothing = 0.8
+    cs800_status.smoothing = 0.5
     cs800_status.emit_status()
 
 
