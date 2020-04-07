@@ -73,7 +73,6 @@ class StateMachine:
         self.queue = []
         self.handler = self.idle
         self.loop_delay = 0.1
-        self.command_process_delay = 1.0
 
         self.phase_id_paused = None
         self.ramp_target_time = 0.0
@@ -86,7 +85,9 @@ class StateMachine:
     def addCommand(self, request):
         "add a command request to the queue"
         cmd = request.get("command_id")
-        if cmd == "PAUSE":
+        if cmd == "HOLD":
+            self.do_hold()
+        elif cmd == "PAUSE":
             self.do_pause()
         elif cmd == "RESUME":
             self.do_resume()
@@ -96,11 +97,8 @@ class StateMachine:
     @run_in_thread
     def event_loop(self):
         logger.info("event loop started ...")
-        timer = time.time() + self.command_process_delay
         while True:
-            if time.time() > timer:
-                timer += self.command_process_delay
-                self.handler()
+            self.handler()
             time.sleep(self.loop_delay)
     
     def idle(self):
@@ -143,10 +141,6 @@ class StateMachine:
             cs800_status.phase_id = "End"
             # TODO:
 
-        elif cmd == "HOLD":
-            cs800_status.phase_id = "Hold"
-            # TODO:
-
         elif cmd == "PLAT":
             cs800_status.phase_id = "Plat"
             # TODO:
@@ -171,6 +165,24 @@ class StateMachine:
         sp += time_left * rate / 3600.0
         cs800_status.memory["StatusGasSetPoint"] = sp
         cs800_status.memory["StatusRemaining"] = int(time_left/60 + 0.5)
+
+    def do_hold(self):
+        """
+        Stay at the current temperature indefinitely ...
+        
+        ... with no ability to resume the previous command 
+        (unlike the PAUSE and RESUME functions). 
+        """
+        cs800_status.memory["StatusGasSetPoint"] = cs800_status.memory["StatusGasTemp"]
+        cs800_status.memory["StatusRemaining"] = 0
+        cs800_status.phase_id = "Hold"
+        self.handler = self.idle
+
+    def do_pause(self):
+        # TODO:
+        self.phase_id_paused = cs800_status.phase_id
+        # remember to keep track of where we were for RESUME
+        cs800_status.phase_id = "Wait"
     
     def do_ramp(self):
         time_left = self.ramp_target_time - time.time()
@@ -188,12 +200,6 @@ class StateMachine:
         sp -= time_left * rate / 3600.0
         cs800_status.memory["StatusGasSetPoint"] = sp
         cs800_status.memory["StatusRemaining"] = int(time_left/60 + 0.5)
-
-    def do_pause(self):
-        # TODO:
-        self.phase_id_paused = cs800_status.phase_id
-        # remember to keep track of where we were for RESUME
-        cs800_status.phase_id = "Wait"
     
     def do_resume(self):
         # TODO:
