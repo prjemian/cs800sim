@@ -75,9 +75,14 @@ class CS800:
         return utils.PHASE_IDS.index(self._phase_id)
 
     @phase_id.setter
-    def phase_id(self, text):
-        if text in utils.PHASE_IDS:
-            self._phase_id = text
+    def phase_id(self, phase):
+        if phase in utils.PHASE_IDS:
+            # set by text
+            self._phase_id = phase
+            self.memory["StatusPhaseId"] = self.phase_id
+        elif isinstance(phase, int) and 0 <= phase < len(utils.PHASE_IDS):
+            # set by index
+            self._phase_id = utils.PHASE_IDS[phase]
             self.memory["StatusPhaseId"] = self.phase_id
 
     @property
