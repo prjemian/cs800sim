@@ -164,7 +164,7 @@ class StateMachine:
             self.ramp_target_time = 0
             return
 
-        sp = self.ramp_setpoint - time_left * self.ramp_rate
+        sp = self.ramp_setpoint - time_left * self.ramp_rate / 3600.0
         print(f"DEBUG: target={self.ramp_setpoint}  sp={sp}")
         cs800_status.memory["StatusGasSetPoint"] = sp
 
