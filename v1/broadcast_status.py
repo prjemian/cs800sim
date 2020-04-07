@@ -147,6 +147,8 @@ class CS800:
             value = self.memory[parm]
             if parm in utils.TEMPERATURE_PARAMETERS:
                 value = int(value*100 + 0.5)    # report T in centiKelvin
+            if int(value) < 0:
+                print("DEBUG:", parm, value)
             data += parm_id + utils.encode2bytes(int(value))
             # ll = len(data)
             # logger.debug("%d ParamID=%s: msg=%s", ll, parm, parm_id + utils.encode2bytes(value))
