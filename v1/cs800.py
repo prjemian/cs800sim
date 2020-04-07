@@ -89,10 +89,12 @@ class StateMachine:
         if cmd == "HOLD":
             self.do_hold()
         elif cmd == "PAUSE":
-            self.do_pause()
-        elif cmd == "RESUME":
-            self.do_resume()
-        elif not self.paused:
+            if not not self.paused:     # ignore extra pauses
+                self.do_pause()
+        elif cmd == "RESUME":           # ignore extra resumes
+            if self.paused:
+                self.do_resume()
+        elif not self.paused:           # only if not paused
             self.queue.append(request)
 
     @run_in_thread
@@ -170,8 +172,20 @@ class StateMachine:
                 self.target_time = time.time() + ramp_time_s
 
         elif cmd == "PURGE":
+            rate = 360      # K / h
+            sp = 300        # K
+            cs800_status.memory["StatusRampRate"] = rate
+            cs800_status.memory["StatusTargetTemp"] = sp
+            cs800_status.memory["StatusGasSetPoint"] = sp
             cs800_status.phase_id = "Purge"
-            # TODO:
+            self.handler = self.do_purge
+
+            temp_now = cs800_status.memory["StatusGasTemp"]
+            ramp_time_s = abs(sp - temp_now) / rate*3600
+            self.target_time = time.time() + ramp_time_s
+
+        elif cmd == "STOP":
+            cs800_status.run_mode = "Shutdown OK"
     
     def do_cool(self):
         """
@@ -286,7 +300,7 @@ class StateMachine:
         self.target_time += time.time() - self.time_paused
         self.time_paused = 0
         self.phase_id = self.phase_id_paused
-        self.handler = {
+        self.handler = {    # these commands can be paused
             "Cool" : self.do_cool,
             "End" : self.do_end,
             "Plat" : self.do_plat,
@@ -294,7 +308,6 @@ class StateMachine:
         }[cs800_status._phase_id]
         self.paused = False
 
-        # TODO:
         cs800_status.phase_id = self.phase_id_paused
         self.phase_id_paused = None
 
