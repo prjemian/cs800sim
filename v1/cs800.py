@@ -75,6 +75,8 @@ class StateMachine:
         self.loop_delay = 0.1
         self.command_process_delay = 1.0
 
+        self.phase_id_paused = None
+
         # TODO:
         self.time_remaining = 0
         self.pause = False
@@ -127,8 +129,24 @@ class StateMachine:
             # self.time_remaining = (sp - sp_now) / rate / 3600.0
             # self.setpoint_target_time = time.time() + self.time_remaining
 
-            # cs800_status.phase_id = "Ramp"
+            cs800_status.phase_id = "Ramp"
             # self.handler = self.do_ramp
+
+        elif cmd == "END":
+            cs800_status.phase_id = "End"
+            # TODO:
+
+        elif cmd == "HOLD":
+            cs800_status.phase_id = "Hold"
+            # TODO:
+
+        elif cmd == "PLAT":
+            cs800_status.phase_id = "Plat"
+            # TODO:
+
+        elif cmd == "PURGE":
+            cs800_status.phase_id = "Purge"
+            # TODO:
     
     def do_cool(self):
         pass
@@ -142,11 +160,14 @@ class StateMachine:
     
     def do_pause(self):
         # TODO:
-        pass
+        self.phase_id_paused = cs800_status.phase_id
+        # remember to keep track of where we were for RESUME
+        cs800_status.phase_id = "Wait"
     
     def do_resume(self):
         # TODO:
-        pass
+        cs800_status.phase_id = self.phase_id_paused
+        self.phase_id_paused = None
 
 
 @run_in_thread
