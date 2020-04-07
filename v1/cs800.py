@@ -114,8 +114,16 @@ class StateMachine:
         if cmd == "COOL":
             rate = 360.0                    # K/h
             sp = request["arg1"] * 0.01     # K
-            cs800_status.phase_id = "Cool"
-            cs800_status.memory["StatusGasSetPoint"] = sp
+            temp_now = cs800_status.memory["StatusGasTemp"]
+            if sp < temp_now:
+                # only cool DOWN
+                cs800_status.memory["StatusRampRate"] = rate
+                cs800_status.memory["StatusTargetTemp"] = sp
+                cs800_status.phase_id = "Cool"
+                self.handler = self.do_cool
+
+                ramp_time_s = (temp_now - sp) / rate*3600
+                self.ramp_target_time = time.time() + ramp_time_s
 
         elif cmd == "RAMP":
             rate = request["arg1"]          # K/h
@@ -123,13 +131,13 @@ class StateMachine:
             temp_now = cs800_status.memory["StatusGasTemp"]
             if sp > temp_now:
                 # only ramp UP
-                cs800_status.memory["StatusTargetTemp"] = sp
-                ramp_time_s = (sp - temp_now) / rate*3600
-                self.ramp_target_time = time.time() + ramp_time_s
-
                 cs800_status.memory["StatusRampRate"] = rate
+                cs800_status.memory["StatusTargetTemp"] = sp
                 cs800_status.phase_id = "Ramp"
                 self.handler = self.do_ramp
+
+                ramp_time_s = (sp - temp_now) / rate*3600
+                self.ramp_target_time = time.time() + ramp_time_s
 
         elif cmd == "END":
             cs800_status.phase_id = "End"
@@ -148,7 +156,21 @@ class StateMachine:
             # TODO:
     
     def do_cool(self):
-        pass
+        time_left = self.ramp_target_time - time.time()
+        sp = cs800_status.memory["StatusTargetTemp"]
+        rate = cs800_status.memory["StatusRampRate"]
+
+        if time_left < 0:
+            # ramp time is over
+            cs800_status.memory["StatusGasSetPoint"] = sp
+            cs800_status.memory["StatusRemaining"] = 0
+            self.handler = self.idle
+            cs800_status.phase_id = "Hold"  # TODO: check this
+            return
+
+        sp += time_left * rate / 3600.0
+        cs800_status.memory["StatusGasSetPoint"] = sp
+        cs800_status.memory["StatusRemaining"] = int(time_left/60 + 0.5)
     
     def do_ramp(self):
         time_left = self.ramp_target_time - time.time()
