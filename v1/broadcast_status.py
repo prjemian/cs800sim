@@ -39,6 +39,8 @@ class CS800:
         SetUpColdheadNumber
         DeviceH8Firmware
         StatusRampRate
+        StatusTargetTemp
+        StatusRemaining
         """.split()
 
     def __init__(self):
@@ -58,6 +60,7 @@ class CS800:
         self.memory = {k: utils.bs2i(v) for k, v in utils.STATUS_IDS.items()}
         self.memory["StatusGasSetPoint"] = 100.0
         self.memory["StatusGasTemp"] = 100.0
+        self.memory["StatusTargetTemp"] = 100.0
 
         self.run_mode = "Startup"
         self.phase_id = "Hold"

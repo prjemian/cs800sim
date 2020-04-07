@@ -77,8 +77,6 @@ class StateMachine:
 
         self.phase_id_paused = None
         self.ramp_target_time = 0.0
-        self.ramp_rate = 0
-        self.ramp_setpoint = 0
 
         # TODO:
         self.pause = False
@@ -120,15 +118,16 @@ class StateMachine:
             cs800_status.memory["StatusGasSetPoint"] = sp
 
         elif cmd == "RAMP":
-            self.ramp_rate = request["arg1"]                # K/h
-            self.ramp_setpoint = request["arg2"] * 0.01     # K
+            rate = request["arg1"]          # K/h
+            sp = request["arg2"] * 0.01     # K
             temp_now = cs800_status.memory["StatusGasTemp"]
-            if self.ramp_setpoint > temp_now:
+            if sp > temp_now:
                 # only ramp UP
-                ramp_time_s = (self.ramp_setpoint - temp_now) / self.ramp_rate*3600
+                cs800_status.memory["StatusTargetTemp"] = sp
+                ramp_time_s = (sp - temp_now) / rate*3600
                 self.ramp_target_time = time.time() + ramp_time_s
 
-                cs800_status.memory["StatusRampRate"] = self.ramp_rate
+                cs800_status.memory["StatusRampRate"] = rate
                 cs800_status.phase_id = "Ramp"
                 self.handler = self.do_ramp
 
@@ -153,17 +152,20 @@ class StateMachine:
     
     def do_ramp(self):
         time_left = self.ramp_target_time - time.time()
+        sp = cs800_status.memory["StatusTargetTemp"]
+        rate = cs800_status.memory["StatusRampRate"]
 
         if time_left < 0:
             # ramp time is over
-            cs800_status.memory["StatusGasSetPoint"] = self.ramp_setpoint
+            cs800_status.memory["StatusGasSetPoint"] = sp
+            cs800_status.memory["StatusRemaining"] = 0
             self.handler = self.idle
             cs800_status.phase_id = "Hold"  # TODO: check this
-            self.ramp_target_time = 0
             return
 
-        sp = self.ramp_setpoint - time_left * self.ramp_rate / 3600.0
+        sp -= time_left * rate / 3600.0
         cs800_status.memory["StatusGasSetPoint"] = sp
+        cs800_status.memory["StatusRemaining"] = int(time_left/60 + 0.5)
 
     def do_pause(self):
         # TODO:
