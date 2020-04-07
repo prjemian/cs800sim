@@ -125,6 +125,7 @@ class StateMachine:
             temp_now = cs800_status.memory["StatusGasTemp"]
             if self.ramp_setpoint > temp_now:
                 # only ramp UP
+                print(f"DEBUG: ramp_time_s={ramp_time_s}")
                 ramp_time_s = (self.ramp_setpoint - temp_now) / self.ramp_rate*3600
                 self.ramp_target_time = time.time() + ramp_time_s
 
@@ -161,6 +162,7 @@ class StateMachine:
             self.ramp_target_time = 0
             return
         sp = self.ramp_setpoint - time_left * self.ramp_rate
+        print(f"DEBUG: target={self.ramp_setpoint}  sp={sp}")
         cs800_status.memory["StatusGasSetPoint"] = sp
 
     def do_pause(self):
