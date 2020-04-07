@@ -38,6 +38,7 @@ class CS800:
         SetUpCommissionDate
         SetUpColdheadNumber
         DeviceH8Firmware
+        StatusRampRate
         """.split()
 
     def __init__(self):
@@ -62,6 +63,7 @@ class CS800:
         self.phase_id = "Hold"
         self.memory["StatusRunMode"] = self.run_mode
         self.memory["StatusPhaseId"] = self.phase_id
+        self.memory["StatusRampRate"] = 360
 
         self.memory["SetUpControllerNumber"] = int(rand(3100, 30))
         self.memory["SetUpColdheadNumber"] = int(rand(3220, 30))

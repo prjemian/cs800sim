@@ -76,12 +76,12 @@ class StateMachine:
         self.command_process_delay = 1.0
 
         self.phase_id_paused = None
+        self.setpoint_target_time = 0.0
+        self.ramp_rate = 0
+        self.ramp_setpoint = 0
 
         # TODO:
-        self.time_remaining = 0
         self.pause = False
-        self.setpoint_slope = 0.0
-        self.setpoint_target_time = 0.0
 
         self.event_loop()
 
@@ -120,14 +120,16 @@ class StateMachine:
             cs800_status.memory["StatusGasSetPoint"] = sp
 
         elif cmd == "RAMP":
-            rate = request["arg1"]          # K/h
-            sp = request["arg2"] * 0.01     # K
+            self.ramp_rate = request["arg1"]          # K/h
+            self.ramp_setpoint = request["arg2"] * 0.01     # K
             sp_now = cs800_status.memory["StatusGasSetPoint"]
-            cs800_status.memory["StatusGasSetPoint"] = sp
 
             # FIXME:
             # self.time_remaining = (sp - sp_now) / rate / 3600.0
             # self.setpoint_target_time = time.time() + self.time_remaining
+
+            cs800_status.memory["StatusGasSetPoint"] = self.ramp_setpoint
+            cs800_status.memory["StatusRampRate"] = self.ramp_rate
 
             cs800_status.phase_id = "Ramp"
             # self.handler = self.do_ramp
@@ -152,12 +154,14 @@ class StateMachine:
         pass
     
     def do_ramp(self):
-        t = time.time()
-        # FIXME:
-        # if t > self.setpoint_target_time:
-        #     self.handler = self.idle
+        time_left = self.setpoint_target_time - time.time()
+        if time_left < 0:
+            self.handler = self.idle
+            self.setpoint_target_time = 0
+            return
         # sp = cs800_status.memory["StatusGasSetPoint"]
-    
+        # cs800_status.memory["StatusGasSetPoint"] = sp
+
     def do_pause(self):
         # TODO:
         self.phase_id_paused = cs800_status.phase_id
