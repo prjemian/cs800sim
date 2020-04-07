@@ -27,20 +27,6 @@ REVERSE_IDS = {v:k for k, v in utils.COMMAND_IDS.items()}
 class CS800controller:
     """
     send commands to a CS8000 controller (replies are not in the spec)
-
-    ==============  ========================
-    Command Name    Meaning
-    ==============  ========================
-    RESTART         Stop Cryostream and re-initialise system back to “Ready”. 
-    RAMP            Change gas temperature to a set value at a controlled rate. 
-    COOL            Make gas temperature decrease to a set value as quickly as possible. 
-    PLAT            Maintain the current temperature for a set amount of time. 
-    SUSPEND         Interrupt the current commands and maintain the current gas temperature until instructed otherwise by a RESUME command. 
-    RESUME          Resume the previous command before the SUSPEND command was given. 
-    HOLD            Stay at the current temperature indefinitely with no ability to resume the previous command (unlike the SUSPEND and RESUME functions). 
-    END             Bring the gas temperature to 300 K, then shut down. 
-    PURGE           Bring the gas temperature and the internal temperature to 300 K then shut down. 
-    ==============  ========================
     """
 
     def __init__(self, cs800_host):
