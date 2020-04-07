@@ -110,7 +110,7 @@ class CS800:
         old = self.memory["StatusGasTemp"]
         old = max(80, min(300, old))
         eta = self.smoothing
-        value = eta*old + (1 - eta)*sp
+        value = eta*sp + (1 - eta)*old
         noise = rand_norm(0, self.noise_amplitude)
         self.memory["StatusGasTemp"] = value + noise
         self.memory["StatusRunTime"] = (time.time() - self.start_time)/60.0
