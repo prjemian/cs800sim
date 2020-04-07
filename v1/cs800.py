@@ -69,16 +69,17 @@ class StateMachine:
     ==============  ========================
     """
 
+    idle_phase = "Hold"
+
     def __init__(self):
         self.queue = []
         self.handler = self.idle
         self.loop_delay = 0.1
 
+        self.time_paused = 0
         self.phase_id_paused = None
-        self.ramp_target_time = 0.0
-
-        # TODO:
-        self.pause = False
+        self.paused = False
+        self.target_time = 0.0
 
         self.event_loop()
 
@@ -91,7 +92,7 @@ class StateMachine:
             self.do_pause()
         elif cmd == "RESUME":
             self.do_resume()
-        else:
+        elif not self.paused:
             self.queue.append(request)
 
     @run_in_thread
@@ -102,6 +103,9 @@ class StateMachine:
             time.sleep(self.loop_delay)
     
     def idle(self):
+        """
+        no commanded activity, keep the controller working, look for new commands
+        """
         if len(self.queue) == 0:
             return                      # nothing to do
 
@@ -121,7 +125,35 @@ class StateMachine:
                 self.handler = self.do_cool
 
                 ramp_time_s = (temp_now - sp) / rate*3600
-                self.ramp_target_time = time.time() + ramp_time_s
+                self.target_time = time.time() + ramp_time_s
+
+        elif cmd == "END":
+            rate = 360      # K / h
+            sp = 300        # K
+            cs800_status.memory["StatusRampRate"] = rate
+            cs800_status.memory["StatusTargetTemp"] = sp
+            cs800_status.memory["StatusGasSetPoint"] = sp
+            cs800_status.phase_id = "End"
+            self.handler = self.do_end
+
+            temp_now = cs800_status.memory["StatusGasTemp"]
+            ramp_time_s = abs(sp - temp_now) / rate*3600
+            self.target_time = time.time() + ramp_time_s
+
+        elif cmd == "PLAT":
+            duration = request["arg1"]          # minutes
+            self.target_time = time.time() + duration*60.0
+            cs800_status.phase_id = "Plat"
+            self.handler = self.do_plat
+
+        elif cmd == "PURGE":
+            rate = 360      # K / h
+            sp = 300        # K
+            cs800_status.memory["StatusRampRate"] = rate
+            cs800_status.memory["StatusTargetTemp"] = sp
+            cs800_status.memory["StatusGasSetPoint"] = sp
+            cs800_status.phase_id = "Purge"
+            self.handler = self.do_purge
 
         elif cmd == "RAMP":
             rate = request["arg1"]          # K/h
@@ -135,35 +167,52 @@ class StateMachine:
                 self.handler = self.do_ramp
 
                 ramp_time_s = (sp - temp_now) / rate*3600
-                self.ramp_target_time = time.time() + ramp_time_s
-
-        elif cmd == "END":
-            cs800_status.phase_id = "End"
-            # TODO:
-
-        elif cmd == "PLAT":
-            cs800_status.phase_id = "Plat"
-            # TODO:
+                self.target_time = time.time() + ramp_time_s
 
         elif cmd == "PURGE":
             cs800_status.phase_id = "Purge"
             # TODO:
     
     def do_cool(self):
-        time_left = self.ramp_target_time - time.time()
+        """
+        Make gas temperature decrease to a set value as quickly as possible.
+        """
+        time_left = self.target_time - time.time()
         sp = cs800_status.memory["StatusTargetTemp"]
         rate = cs800_status.memory["StatusRampRate"]
 
-        if time_left < 0:
-            # ramp time is over
+        if time_left < 0 or sp <= cs800_status.memory["StatusGasSetPoint"]:
+            # ramp time is over or set point reached
             cs800_status.memory["StatusGasSetPoint"] = sp
             cs800_status.memory["StatusRemaining"] = 0
             self.handler = self.idle
-            cs800_status.phase_id = "Hold"  # TODO: check this
+            cs800_status.phase_id = self.idle_phase
             return
 
         sp += time_left * rate / 3600.0
         cs800_status.memory["StatusGasSetPoint"] = sp
+        cs800_status.memory["StatusRemaining"] = int(time_left/60 + 0.5)
+
+    def do_end(self):
+        """
+        Bring the gas temperature to 300 K, then shut down.
+        """
+        sp = cs800_status.memory["StatusTargetTemp"]
+        rate = cs800_status.memory["StatusRampRate"]
+        temp_now = cs800_status.memory["StatusGasTemp"]
+        time_left = abs(sp - temp_now) / rate*3600
+
+        if time_left < 0 or temp_now >= sp:
+            # ramp time is over or set point reached
+            cs800_status.memory["StatusGasSetPoint"] = sp
+            cs800_status.memory["StatusRemaining"] = 0
+            self.handler = self.idle
+            cs800_status.phase_id = self.idle_phase
+            self.queue = [
+                dict(command_id="STOP", arg1="", arg2="", time=time.time())
+                ]
+            return
+
         cs800_status.memory["StatusRemaining"] = int(time_left/60 + 0.5)
 
     def do_hold(self):
@@ -175,26 +224,55 @@ class StateMachine:
         """
         cs800_status.memory["StatusGasSetPoint"] = cs800_status.memory["StatusGasTemp"]
         cs800_status.memory["StatusRemaining"] = 0
+        self.queue = []     # disables any further commands
         cs800_status.phase_id = "Hold"
         self.handler = self.idle
 
     def do_pause(self):
-        # TODO:
+        """
+        Interrupt the current commands and maintain the current gas temperature ...
+        
+        ... until instructed otherwise by a RESUME command. 
+        """
+        self.time_paused = time.time()
         self.phase_id_paused = cs800_status.phase_id
         # remember to keep track of where we were for RESUME
         cs800_status.phase_id = "Wait"
+        self.paused = True
+
+    def do_plat(self):
+        """
+        Maintain the current temperature for a set amount of time.
+        """
+        time_left = self.target_time - time.time()
+        if time_left < 0:
+            cs800_status.memory["StatusRemaining"] = 0
+            self.handler = self.idle
+            cs800_status.phase_id = self.idle_phase
+            return
+
+        cs800_status.memory["StatusRemaining"] = int(time_left/60 + 0.5)
+
+    def do_purge(self):
+        """
+        Bring the gas temperature and the internal temperature to 300 K then shut down. 
+        """
+        self.do_end()   # simulate
     
     def do_ramp(self):
-        time_left = self.ramp_target_time - time.time()
+        """
+        Change gas temperature to a set value at a controlled rate. 
+        """
+        time_left = self.target_time - time.time()
         sp = cs800_status.memory["StatusTargetTemp"]
         rate = cs800_status.memory["StatusRampRate"]
 
-        if time_left < 0:
-            # ramp time is over
+        if time_left < 0 or sp >= cs800_status.memory["StatusGasSetPoint"]:
+            # ramp time is over or set point reached
             cs800_status.memory["StatusGasSetPoint"] = sp
             cs800_status.memory["StatusRemaining"] = 0
             self.handler = self.idle
-            cs800_status.phase_id = "Hold"  # TODO: check this
+            cs800_status.phase_id = self.idle_phase
             return
 
         sp -= time_left * rate / 3600.0
@@ -202,6 +280,20 @@ class StateMachine:
         cs800_status.memory["StatusRemaining"] = int(time_left/60 + 0.5)
     
     def do_resume(self):
+        """
+        Resume the previous command before the PAUSE command was given. 
+        """
+        self.target_time += time.time() - self.time_paused
+        self.time_paused = 0
+        self.phase_id = self.phase_id_paused
+        self.handler = {
+            "Cool" : self.do_cool,
+            "End" : self.do_end,
+            "Plat" : self.do_plat,
+            "Ramp" : self.do_ramp,
+        }[cs800_status._phase_id]
+        self.paused = False
+
         # TODO:
         cs800_status.phase_id = self.phase_id_paused
         self.phase_id_paused = None
