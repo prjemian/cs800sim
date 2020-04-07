@@ -31,28 +31,6 @@ class CS800:
     simulate the CS800 controller
     """
 
-    run_modes = [
-        "Startup",
-        "Startup Fail",
-        "Startup OK",
-        "Run",
-        "Setup",
-        "Shutdown OK",
-        "Shutdown Fail",
-        ]
-    phase_ids = [
-        "Ramp",
-        "Cool",
-        "Plat",
-        "Hold",
-        "End",
-        "Purge",
-        "Delete Phase",
-        "Load Program",
-        "Save Program",
-        "Soak",
-        "Wait",
-        ]
     constant_parameters = """
         StatusGasTemp StatusGasSetPoint
         StatusRunMode StatusPhaseId
@@ -81,7 +59,7 @@ class CS800:
         self.memory["StatusGasTemp"] = 100.0
 
         self.run_mode = "Startup"
-        self.phase_id = "Cool"
+        self.phase_id = "Hold"
         self.memory["StatusRunMode"] = self.run_mode
         self.memory["StatusPhaseId"] = self.phase_id
 
@@ -94,21 +72,21 @@ class CS800:
 
     @property
     def phase_id(self):
-        return self.phase_ids.index(self._phase_id)
+        return utils.PHASE_IDS.index(self._phase_id)
 
     @phase_id.setter
     def phase_id(self, text):
-        if text in self.phase_ids:
+        if text in utils.PHASE_IDS:
             self._phase_id = text
             self.memory["StatusPhaseId"] = self.phase_id
 
     @property
     def run_mode(self):
-        return self.run_modes.index(self._run_mode)
+        return utils.RUN_MODES.index(self._run_mode)
 
     @run_mode.setter
     def run_mode(self, text):
-        if text in self.run_modes:
+        if text in utils.RUN_MODES:
             self._run_mode = text
             self.memory["StatusRunMode"] = self.run_mode
 

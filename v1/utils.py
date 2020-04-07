@@ -91,6 +91,30 @@ COMMAND_IDS = dict(
 TURBO_OFF = 0
 TURBO_ON = 1
 
+RUN_MODES = [
+    "Startup",
+    "Startup Fail",
+    "Startup OK",
+    "Run",
+    "Setup",
+    "Shutdown OK",
+    "Shutdown Fail",
+    ]
+
+PHASE_IDS = [
+    "Ramp",
+    "Cool",
+    "Plat",
+    "Hold",
+    "End",
+    "Purge",
+    "Delete Phase",
+    "Load Program",
+    "Save Program",
+    "Soak",
+    "Wait",
+    ]
+
 
 def checksum(byte_list, basis=1):
     """
