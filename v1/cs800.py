@@ -154,6 +154,8 @@ class StateMachine:
     
     def do_ramp(self):
         time_left = self.ramp_target_time - time.time()
+        print(f"DEBUG: time_left={time_left} s   ramp_rate={self.ramp_rate}")
+
         if time_left < 0:
             # ramp time is over
             cs800_status.memory["StatusGasSetPoint"] = self.ramp_setpoint
@@ -161,6 +163,7 @@ class StateMachine:
             cs800_status.phase_id = "Hold"  # TODO: check this
             self.ramp_target_time = 0
             return
+
         sp = self.ramp_setpoint - time_left * self.ramp_rate
         print(f"DEBUG: target={self.ramp_setpoint}  sp={sp}")
         cs800_status.memory["StatusGasSetPoint"] = sp
