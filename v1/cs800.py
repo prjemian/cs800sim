@@ -186,6 +186,9 @@ class StateMachine:
 
         elif cmd == "STOP":
             cs800_status.run_mode = "Shutdown OK"
+
+        elif cmd == "RESTART":
+            cs800_status.run_mode = "Startup OK"
     
     def do_cool(self):
         """
@@ -223,7 +226,9 @@ class StateMachine:
             self.handler = self.idle
             cs800_status.phase_id = self.idle_phase
             self.queue = [
-                dict(command_id="STOP", arg1="", arg2="", time=time.time())
+                dict(command_id="STOP", arg1=None, arg2=None, time=time.time()),
+                dict(command_id="PLAT", arg1=1, arg2=None, time=time.time()),
+                dict(command_id="RESTART", arg1=None, arg2=None, time=time.time()),
                 ]
             return
 
