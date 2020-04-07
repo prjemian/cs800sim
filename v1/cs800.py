@@ -219,7 +219,7 @@ class StateMachine:
         temp_now = cs800_status.memory["StatusGasTemp"]
         time_left = abs(sp - temp_now) / rate*3600
 
-        if time_left < 0 or temp_now >= sp:
+        if time_left < 0 or temp_now >= sp - cs800_status.noise_amplitude:
             # ramp time is over or set point reached
             cs800_status.memory["StatusGasSetPoint"] = sp
             cs800_status.memory["StatusRemaining"] = 0
