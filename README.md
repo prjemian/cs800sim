@@ -42,7 +42,7 @@ bits | description
 ---- | ----
 16 | header: `0xAAAB`
 16 | data size
-repeating | for all parameters:<br /> <table> <thead>  <tr>  <th>bits</th>  <th>description</th>  </tr>  </thead> <tbody> <tr> <td>16</td> <td>parameter ID</td> </tr> <tr> <td>16</td> <td>value</td> </tr> </tbody> </table>
+repeat | for all parameters:<br /> <table> <thead>  <tr>  <th>bits</th>  <th>description</th>  </tr>  </thead> <tbody> <tr> <td>16</td> <td>parameter ID</td> </tr> <tr> <td>16</td> <td>value</td> </tr> </tbody> </table>
 16 | checksum: sum of all parameter IDs and values
 16 | footer: `0xABAA`
 
