@@ -269,7 +269,7 @@ class StateMachine:
                 ).isoformat(sep=" ", timespec="seconds"),
             )
 
-        cs800_status.memory["StatusGasSetPoint"] = cs800_status.memory["StatusGasTemp"]
+        # cs800_status.memory["StatusGasSetPoint"] = cs800_status.memory["StatusGasTemp"]
         cs800_status.memory["StatusRemaining"] = 0
         self.paused = False
         self.phase_id_paused = None
@@ -287,7 +287,7 @@ class StateMachine:
         self.time_paused = time.time()
         self.phase_id_paused = cs800_status._phase_id
         logger.info(
-            "(%s) PAUSE  from %s",
+            "(%s) PAUSE  %s",
             datetime.datetime.fromtimestamp(
                 self.time_paused
                 ).isoformat(sep=" ", timespec="seconds"),
@@ -346,7 +346,7 @@ class StateMachine:
         """
         resume_phase_id = self.phase_id_paused
         logger.info(
-            "(%s) RESUME  from %s",
+            "(%s) RESUME %s",
             datetime.datetime.fromtimestamp(
                 time.time()
                 ).isoformat(sep=" ", timespec="seconds"),
