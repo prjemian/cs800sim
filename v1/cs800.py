@@ -271,6 +271,9 @@ class StateMachine:
 
         cs800_status.memory["StatusGasSetPoint"] = cs800_status.memory["StatusGasTemp"]
         cs800_status.memory["StatusRemaining"] = 0
+        self.paused = False
+        self.phase_id_paused = None
+        self.target_time = 0.0
         self.queue = []     # disables any further commands
         cs800_status.phase_id = "Hold"
         self.handler = self.idle
