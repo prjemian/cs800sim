@@ -87,7 +87,6 @@ class StateMachine:
     def addCommand(self, request):
         "add a command request to the queue"
         cmd = request.get("command_id")
-        print(cmd)
         if cmd == "HOLD":
             self.do_hold()
         elif cmd == "PAUSE":
