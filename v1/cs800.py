@@ -341,16 +341,16 @@ class StateMachine:
             )
         self.target_time += time.time() - self.time_paused
         self.time_paused = 0
-        self.phase_id = self.phase_id_paused
+        resume_phase_id = self.phase_id_paused
         self.handler = {    # these commands can be paused
             "Cool" : self.do_cool,
             "End" : self.do_end,
             "Plat" : self.do_plat,
             "Ramp" : self.do_ramp,
-        }[cs800_status._phase_id]
+        }[resume_phase_id]
         self.paused = False
 
-        cs800_status.phase_id = self.phase_id_paused
+        cs800_status.phase_id = resume_phase_id
         self.phase_id_paused = None
     
     def set_time_remaining(self, time_left):
