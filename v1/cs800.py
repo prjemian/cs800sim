@@ -115,7 +115,7 @@ class StateMachine:
         t_now = time.time()
         request = self.queue.pop(0)     # next request in the queue
         logger.info(
-            "(%s, %s) %s(%d,%d), (@%s)",
+            "(%s, %s) %s(%d,%d)  (@%s)",
             datetime.datetime.fromtimestamp(t_now).isoformat(sep=" ", timespec="seconds"),
             request.get("ip", "n/a"),
             request["command_id"],
