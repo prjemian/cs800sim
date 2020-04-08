@@ -273,7 +273,7 @@ class StateMachine:
         ... until instructed otherwise by a RESUME command. 
         """
         self.time_paused = time.time()
-        self.phase_id_paused = cs800_status.phase_id
+        self.phase_id_paused = cs800_status._phase_id
         logger.info(
             "(%s) PAUSE  from %s",
             datetime.datetime.fromtimestamp(
