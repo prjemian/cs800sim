@@ -216,6 +216,10 @@ class StateMachine:
             self.set_time_remaining(0)
             self.handler = self.idle
             cs800_status.phase_id = self.idle_phase
+            if len(self.queue) == 0:
+                self.queue = [
+                    dict(command_id="HOLD", arg1=0, arg2=0, time=time.time()),
+                    ]
             return
 
         sp += time_left * rate / 3600.0
@@ -279,6 +283,10 @@ class StateMachine:
             cs800_status.memory["StatusRemaining"] = 0
             self.handler = self.idle
             cs800_status.phase_id = self.idle_phase
+            if len(self.queue) == 0:
+                self.queue = [
+                    dict(command_id="HOLD", arg1=0, arg2=0, time=time.time()),
+                    ]
             return
 
     def do_purge(self):
@@ -303,6 +311,10 @@ class StateMachine:
             self.set_time_remaining(0)
             self.handler = self.idle
             cs800_status.phase_id = self.idle_phase
+            if len(self.queue) == 0:
+                self.queue = [
+                    dict(command_id="HOLD", arg1=0, arg2=0, time=time.time()),
+                    ]
             return
 
         sp -= time_left * rate / 3600.0
