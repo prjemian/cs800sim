@@ -217,9 +217,7 @@ class StateMachine:
             self.handler = self.idle
             cs800_status.phase_id = self.idle_phase
             if len(self.queue) == 0:
-                self.queue = [
-                    dict(command_id="HOLD", arg1=0, arg2=0, time=time.time()),
-                    ]
+                self.do_hold()
             return
 
         sp += time_left * rate / 3600.0
@@ -255,10 +253,11 @@ class StateMachine:
         ... with no ability to resume the previous command 
         (unlike the PAUSE and RESUME functions). 
         """
-        t_now = time.time()
         logger.info(
             "(%s) HOLD",
-            datetime.datetime.fromtimestamp(time.time()).isoformat(sep=" ", timespec="seconds"),
+            datetime.datetime.fromtimestamp(
+                time.time()
+                ).isoformat(sep=" ", timespec="seconds"),
             )
 
         cs800_status.memory["StatusGasSetPoint"] = cs800_status.memory["StatusGasTemp"]
@@ -324,9 +323,7 @@ class StateMachine:
             self.handler = self.idle
             cs800_status.phase_id = self.idle_phase
             if len(self.queue) == 0:
-                self.queue = [
-                    dict(command_id="HOLD", arg1=0, arg2=0, time=time.time()),
-                    ]
+                self.do_hold()
             return
 
         sp -= time_left * rate / 3600.0
