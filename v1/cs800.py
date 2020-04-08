@@ -10,6 +10,7 @@ status | `broadcast_status.CS800().emit_status()`
 commands | `controller.CS800controller().handler()`
 """
 
+import datetime
 import logging
 import threading
 import time
@@ -111,8 +112,17 @@ class StateMachine:
         if len(self.queue) == 0:
             return                      # nothing to do
 
+        t_now = time.time()
         request = self.queue.pop(0)     # next request in the queue
-        logger.info(request)
+        logger.info(
+            "(%s, %s) %s(%d,%d), received %s",
+            datetime.datetime.fromtimestamp(t_now).isoformat(sep=" ", timespec="seconds"),
+            request.get("ip", "n/a"),
+            request["cmd"],
+            request["arg1"],
+            request["arg2"],
+            request.get("datetime", "(n/a)"),
+            )
 
         cmd = request.get("command_id")
         if cmd == "COOL":
