@@ -118,7 +118,7 @@ class StateMachine:
             "(%s, %s) %s(%d,%d), received %s",
             datetime.datetime.fromtimestamp(t_now).isoformat(sep=" ", timespec="seconds"),
             request.get("ip", "n/a"),
-            request["cmd"],
+            request["command_id"],
             request["arg1"],
             request["arg2"],
             request.get("datetime", "(n/a)"),
