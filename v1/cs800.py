@@ -121,7 +121,7 @@ class StateMachine:
             request["command_id"],
             request["arg1"],
             request["arg2"],
-            request.get("datetime", "(n/a)"),
+            request.get("datetime", "(n/a)").split(".")[0],
             )
 
         cmd = request.get("command_id")
