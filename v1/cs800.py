@@ -273,13 +273,14 @@ class StateMachine:
         ... until instructed otherwise by a RESUME command. 
         """
         self.time_paused = time.time()
+        self.phase_id_paused = cs800_status.phase_id
         logger.info(
-            "(%s) PAUSE",
+            "(%s) PAUSE  from %s",
             datetime.datetime.fromtimestamp(
                 self.time_paused
                 ).isoformat(sep=" ", timespec="seconds"),
+                str(self.phase_id_paused)
             )
-        self.phase_id_paused = cs800_status.phase_id
         # remember to keep track of where we were for RESUME
         cs800_status.phase_id = "Wait"
         self.paused = True
@@ -333,15 +334,16 @@ class StateMachine:
         """
         Resume the previous command before the PAUSE command was given. 
         """
+        resume_phase_id = self.phase_id_paused
         logger.info(
-            "(%s) PAUSE",
+            "(%s) RESUME  from %s",
             datetime.datetime.fromtimestamp(
                 time.time()
                 ).isoformat(sep=" ", timespec="seconds"),
+                str(resume_phase_id)
             )
         self.target_time += time.time() - self.time_paused
         self.time_paused = 0
-        resume_phase_id = self.phase_id_paused
         self.handler = {    # these commands can be paused
             "Cool" : self.do_cool,
             "End" : self.do_end,
