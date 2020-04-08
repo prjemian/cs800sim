@@ -91,7 +91,7 @@ class StateMachine:
         if cmd == "HOLD":
             self.do_hold()
         elif cmd == "PAUSE":
-            if not not self.paused:     # ignore extra pauses
+            if not self.paused:     # ignore extra pauses
                 self.do_pause()
         elif cmd == "RESUME":           # ignore extra resumes
             if self.paused:
