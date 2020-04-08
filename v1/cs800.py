@@ -82,6 +82,13 @@ class StateMachine:
         self.paused = False
         self.target_time = 0.0
 
+        self.resumable_handlers = {    # these commands can be paused/resumed
+            "Cool" : self.do_cool,
+            "End" : self.do_end,
+            "Plat" : self.do_plat,
+            "Ramp" : self.do_ramp,
+        }
+
         self.event_loop()
 
     def addCommand(self, request):
@@ -90,7 +97,9 @@ class StateMachine:
         if cmd == "HOLD":
             self.do_hold()
         elif cmd == "PAUSE":
-            if not self.paused:     # ignore extra pauses
+            phase = cs800_status._phase_id
+            if not self.paused and phase in self.resumable_handlers:
+                # ignore extra pauses
                 self.do_pause()
         elif cmd == "RESUME":           # ignore extra resumes
             if self.paused:
@@ -344,12 +353,7 @@ class StateMachine:
             )
         self.target_time += time.time() - self.time_paused
         self.time_paused = 0
-        self.handler = {    # these commands can be paused
-            "Cool" : self.do_cool,
-            "End" : self.do_end,
-            "Plat" : self.do_plat,
-            "Ramp" : self.do_ramp,
-        }[resume_phase_id]
+        self.handler = self.resumable_handlers[resume_phase_id]
         self.paused = False
 
         cs800_status.phase_id = resume_phase_id
