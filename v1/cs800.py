@@ -255,6 +255,12 @@ class StateMachine:
         ... with no ability to resume the previous command 
         (unlike the PAUSE and RESUME functions). 
         """
+        t_now = time.time()
+        logger.info(
+            "(%s) HOLD",
+            datetime.datetime.fromtimestamp(time.time()).isoformat(sep=" ", timespec="seconds"),
+            )
+
         cs800_status.memory["StatusGasSetPoint"] = cs800_status.memory["StatusGasTemp"]
         cs800_status.memory["StatusRemaining"] = 0
         self.queue = []     # disables any further commands
@@ -268,6 +274,12 @@ class StateMachine:
         ... until instructed otherwise by a RESUME command. 
         """
         self.time_paused = time.time()
+        logger.info(
+            "(%s) PAUSE",
+            datetime.datetime.fromtimestamp(
+                self.time_paused
+                ).isoformat(sep=" ", timespec="seconds"),
+            )
         self.phase_id_paused = cs800_status.phase_id
         # remember to keep track of where we were for RESUME
         cs800_status.phase_id = "Wait"
@@ -324,6 +336,12 @@ class StateMachine:
         """
         Resume the previous command before the PAUSE command was given. 
         """
+        logger.info(
+            "(%s) PAUSE",
+            datetime.datetime.fromtimestamp(
+                time.time()
+                ).isoformat(sep=" ", timespec="seconds"),
+            )
         self.target_time += time.time() - self.time_paused
         self.time_paused = 0
         self.phase_id = self.phase_id_paused
