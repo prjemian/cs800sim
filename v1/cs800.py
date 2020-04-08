@@ -87,6 +87,7 @@ class StateMachine:
     def addCommand(self, request):
         "add a command request to the queue"
         cmd = request.get("command_id")
+        print(cmd)
         if cmd == "HOLD":
             self.do_hold()
         elif cmd == "PAUSE":
@@ -115,13 +116,13 @@ class StateMachine:
         t_now = time.time()
         request = self.queue.pop(0)     # next request in the queue
         logger.info(
-            "(%s, %s) %s(%d,%d)  (@%s)",
+            "(%s) %s(%d,%d)  (@%s, %s)",
             datetime.datetime.fromtimestamp(t_now).isoformat(sep=" ", timespec="seconds"),
-            request.get("ip", "n/a"),
             request["command_id"],
             request["arg1"],
             request["arg2"],
             request.get("datetime", "(n/a)").split(".")[0],
+            request.get("ip", "n/a"),
             )
 
         cmd = request.get("command_id")
