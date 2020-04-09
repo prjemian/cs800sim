@@ -42,7 +42,7 @@ def discover():
         t = time.time()
         dt = datetime.datetime.fromtimestamp(t).isoformat(sep=" ", timespec="milliseconds")
         ip, port = addr
-        if len(data) == 22:
+        if len(data) == 34:
             try:
                 netbios_name = data[:16].decode().strip()
             except UnicodeDecodeError:
