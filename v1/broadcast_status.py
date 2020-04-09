@@ -46,7 +46,7 @@ class CS800:
 
     def __init__(self):
         self.udp_port = 30304			        # CS800 status broadcast port
-        self.udp_host = "<broadcast>"            # always broadcast
+        self.udp_host = "255.255.255.255"        # or "<broadcast>"
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         # Enable broadcasting mode
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)

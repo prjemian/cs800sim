@@ -21,7 +21,7 @@ def announcer():
     announce our NetBIOS name and MAC address by UDP broadcasts every second
     """
     udp_port = 30303			        # CS800 ID broadcast port
-    udp_host = "<broadcast>"            # always broadcast
+    udp_host = "255.255.255.255"        # or "<broadcast>"
     mac_addr = utils.get_mac()[0]       # MAC as string
     netbios_name = socket.gethostname().split(".")[0]
 
