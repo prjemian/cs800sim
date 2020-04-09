@@ -111,7 +111,10 @@ class StateMachine:
     def event_loop(self):
         logger.info("event loop started ...")
         while True:
-            self.handler()
+            try:
+                self.handler()
+            except Exception as exc:
+                logger.error("Exception: %s", str(exc))
             time.sleep(self.loop_delay)
     
     def idle(self):
@@ -151,6 +154,7 @@ class StateMachine:
         elif cmd == "END":
             rate = 360      # K / h
             sp = 300        # K
+
             cs800_status.memory["StatusRampRate"] = rate
             cs800_status.memory["StatusTargetTemp"] = sp
             cs800_status.memory["StatusGasSetPoint"] = sp
