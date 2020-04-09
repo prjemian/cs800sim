@@ -43,8 +43,11 @@ def discover():
         dt = datetime.datetime.fromtimestamp(t).isoformat(sep=" ", timespec="milliseconds")
         ip, port = addr
         if len(data) == 22:
-            netbios_name = data[:16].decode().strip()
-            mac_addr = hex(utils.bs2i(data[16:])).lstrip("0x")
+            try:
+                netbios_name = data[:16].decode().strip()
+            except UnicodeDecodeError:
+                netbios_name = "<undefined>"
+            mac_addr = data[-17:]
             print(
                 "({},{}:{}) {} {}".format(
                     dt,
