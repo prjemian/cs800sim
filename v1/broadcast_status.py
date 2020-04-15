@@ -32,16 +32,20 @@ class CS800:
     """
 
     constant_parameters = """
-        StatusGasTemp StatusGasSetPoint
-        StatusRunMode StatusPhaseId
-        SetUpControllerNumber
-        SetUpCommissionDate
-        SetUpColdheadNumber
         DeviceH8Firmware
+        FlowBlockBackPressure
+        SetUpColdheadNumber
+        SetUpCommissionDate
+        SetUpControllerNumber
+        StatusGasFlow
+        StatusGasSetPoint
+        StatusGasTemp
+        StatusPhaseId
         StatusRampRate
-        StatusTargetTemp
         StatusRemaining
+        StatusRunMode
         StatusRunTime
+        StatusTargetTemp
         """.split()
 
     def __init__(self):
@@ -114,6 +118,8 @@ class CS800:
         noise = rand_norm(0, self.noise_amplitude)
         self.memory["StatusGasTemp"] = value + noise
         self.memory["StatusRunTime"] = (time.time() - self.start_time)/60.0
+        self.memory["StatusGasFlow"] = max(0, rand_norm(20, 5))
+        self.memory["FlowBlockBackPressure"] = max(0, rand_norm(40, 5))
 
         self.memory["time"] = time.time()
         for parm in utils.STATUS_IDS.keys():
