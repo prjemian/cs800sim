@@ -121,7 +121,7 @@ class CS800:
                 if parm in utils.TEMPERATURE_PARAMETERS:
                         self.memory[parm] = rand_norm(150, 5)
                 elif parm in utils.PERCENT_PARAMETERS:
-                        self.memory[parm] = round(rand(0,100))
+                        self.memory[parm] = rand_norm(30, 5)
                 else:
                     self.memory[parm] = rand_norm(500, 50)
         return value
