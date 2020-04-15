@@ -28,6 +28,27 @@ StatusSuctTemp
 StatusTargetTemp
 """.split()
 
+PERCENT_PARAMETERS = """
+FlowBlockValveOpening
+ShutdownInfoErrorEvapHeat
+ShutdownInfoErrorGasHeat
+ShutdownInfoErrorSuctHeat
+StartUpEvapHeat
+StartUpGasHeat
+StartUpSuctHeat
+StatusAveGasHeat
+StatusAveNozzleHeat
+StatusAveSampleHeat
+StatusAveSuctHeat
+StatusColdheadHeat
+StatusEvapHeat
+StatusGasHeat
+StatusNozzleHeat
+StatusSampleHeat
+StatusShieldHeat
+StatusSuctHeat
+""".split()
+
 EPICS_PARAMETERS = """
 AutoFillLNLevel
 DeviceH8Firmware
@@ -35,6 +56,7 @@ DeviceMaxTemp
 DeviceMinTemp
 DeviceSubType
 DeviceType
+FlowBlockValveOpening
 SetUpDefaultEvapAdjust
 StatusAlarmCode
 StatusAveSuctHeat
