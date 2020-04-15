@@ -29,6 +29,7 @@ StatusTargetTemp
 """.split()
 
 PERCENT_PARAMETERS = """
+AutoFillLNLevel
 FlowBlockValveOpening
 ShutdownInfoErrorEvapHeat
 ShutdownInfoErrorGasHeat
