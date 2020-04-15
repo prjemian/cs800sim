@@ -19,11 +19,11 @@ logger = logging.getLogger(__name__)
 
 
 def rand(base, width):
-    return base + width*np.random.random()
+    return round(base + width*np.random.random())
 
 
 def rand_norm(base, width):
-    return base + width*np.random.standard_normal()
+    return round(base + width*np.random.standard_normal())
 
 
 class CS800:
@@ -75,10 +75,10 @@ class CS800:
         self.memory["StatusPhaseId"] = self.phase_id
         self.memory["StatusRampRate"] = 360
 
-        self.memory["SetUpControllerNumber"] = int(rand(3100, 30))
-        self.memory["SetUpColdheadNumber"] = int(rand(3220, 30))
-        self.memory["SetUpCommissionDate"] = int(rand(3330, 30))
-        self.memory["DeviceH8Firmware"] = int(rand(1100, 30))
+        self.memory["SetUpControllerNumber"] = rand(3100, 30)
+        self.memory["SetUpColdheadNumber"] = rand(3220, 30)
+        self.memory["SetUpCommissionDate"] = rand(3330, 30)
+        self.memory["DeviceH8Firmware"] = rand(1100, 30)
 
         self.readGasTemp()
 
@@ -119,7 +119,7 @@ class CS800:
         self.memory["StatusGasTemp"] = value + noise
         self.memory["StatusRunTime"] = (time.time() - self.start_time)/60.0
         self.memory["StatusGasFlow"] = max(0, rand_norm(20, 5))
-        self.memory["FlowBlockBackPressure"] = max(0, rand_norm(40, 5))
+        self.memory["FlowBlockBackPressure"] = max(0, rand_norm(60, 5))
 
         self.memory["time"] = time.time()
         for parm in utils.STATUS_IDS.keys():
