@@ -121,9 +121,9 @@ class CS800:
                 if parm in utils.TEMPERATURE_PARAMETERS:
                         self.memory[parm] = rand_norm(150, 5)
                 elif parm in utils.PERCENT_PARAMETERS:
-                        self.memory[parm] = rand_norm(150, 5)
+                        self.memory[parm] = round(rand(0,100))
                 else:
-                    self.memory[parm] = round(rand(0,1000))
+                    self.memory[parm] = rand_norm(500, 50)
         return value
     
     def create_message(self):
