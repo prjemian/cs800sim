@@ -6,7 +6,9 @@ listen for status broadcasts on UDP
 
 import datetime
 import logging
+import pprint
 import socket
+import sys
 import time
 
 import utils
@@ -73,7 +75,8 @@ def listen_for_status():
 
     while True:
         status = get_status(sock)
-        print(status)
+        pprint.pprint(status)
+        sys.stdout.flush()
 
 
 if __name__ == "__main__":
