@@ -146,13 +146,13 @@ class CS800:
         VALUE_BYTE1, VALUE_BYTE2, ..., CHECKSUM_BYTE1, CHECKSUM_BYTE2, FOOTER_BYTE1,
         FOOTER_BYTE2 
 
-        * HEADER_BYTE1, HEADER_BYTE2 – unique 16-bit header 
-        * DATA_SIZE_BYTE1, DATA_SIZE_BYTE2 – data size in bytes (16 bit);   
-        * ID_BYTE1, ID_BYTE2 – 16 bit Param Id 
-        * VALUE_BYTE1, VALUE_BYTE2, ... – 16 bit Param Value 
-        * CHECKSUM_BYTE1, CHECKSUM_BYTE2 – 16-bit checksum calculated 
-          as simple 16-bit sum of all the ids and values 
-        * FOOTER _BYTE1, FOOTER _BYTE2 – unique 16-bit footer 
+        * HEADER_BYTE1, HEADER_BYTE2 - unique 16-bit header
+        * DATA_SIZE_BYTE1, DATA_SIZE_BYTE2 - data size in bytes (16 bit)
+        * ID_BYTE1, ID_BYTE2 - 16 bit Param Id
+        * VALUE_BYTE1, VALUE_BYTE2, ... - 16 bit Param Value
+        * CHECKSUM_BYTE1, CHECKSUM_BYTE2 - 16-bit checksum calculated
+          as simple 16-bit sum of all the ids and values
+        * FOOTER _BYTE1, FOOTER _BYTE2 - unique 16-bit footer
 
         The HEADER is defined as 0xAAAB and the FOOTER is defined as 0xABAA.
         """
