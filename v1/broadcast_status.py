@@ -143,7 +143,7 @@ class CS800:
         The data section of a UDP status packets has the following structure: 
 
         HEADER_BYTE1, HEADER_BYTE2, DATA_SIZE_BYTE1, DATA_SIZE_BYTE2, ID_BYTE1, ID_BYTE2,
-        VALUE_BYTE1, VALUE_BYTE2, …, CHECKSUM_BYTE1, CHECKSUM_BYTE2, FOOTER_BYTE1,
+        VALUE_BYTE1, VALUE_BYTE2, ..., CHECKSUM_BYTE1, CHECKSUM_BYTE2, FOOTER_BYTE1,
         FOOTER_BYTE2 
 
         * HEADER_BYTE1, HEADER_BYTE2 – unique 16-bit header 
