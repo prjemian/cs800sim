@@ -10,6 +10,7 @@ status | `broadcast_status.CS800().emit_status()`
 commands | `controller.CS800controller().handler()`
 """
 
+import argparse
 import datetime
 import logging
 import threading
@@ -394,13 +395,36 @@ def commands():
     cs800_commands.handler(state_machine.addCommand)
 
 
+def get_user_parameters():
+    """configure user's command line parameters from sys.argv"""
+    parser = argparse.ArgumentParser(
+        prog='cs800', 
+        description="simulate a CS800 controller")
+    parser.add_argument(
+        '-c',
+        # nargs=1,
+        dest='cid',
+        default=None,
+        help="Controller ID (default: random)")
+    return parser.parse_args()
+
+
 def main():
     global cs800_status
+
+    user_parms = get_user_parameters()
+    
     identity()
     status()
     while cs800_status is None:
         logger.info("waiting for threads to start ...")
         time.sleep(1)   # let threads start
+    if user_parms.cid is None:
+        cid = cs800_status.memory["SetUpControllerNumber"]
+        logger.info(f"Controller ID: {cid}")
+    else:
+        cs800_status.memory["SetUpControllerNumber"] = int(user_parms.cid)
+        logger.info(f"Setting controller ID: {user_parms.cid}")
     logger.info("Emitting ID & status, waiting for commands...")
     cs800_status.run_mode = "Startup OK"
     time.sleep(1)
