@@ -421,10 +421,10 @@ def main():
         time.sleep(1)   # let threads start
     if user_parms.cid is None:
         cid = cs800_status.memory["SetUpControllerNumber"]
-        logger.info(f"Controller ID: {cid}")
+        logger.info("Controller ID: {}".format(cid))
     else:
         cs800_status.memory["SetUpControllerNumber"] = int(user_parms.cid)
-        logger.info(f"Setting controller ID: {user_parms.cid}")
+        logger.info("Setting controller ID: {}".format(user_parms.cid))
     logger.info("Emitting ID & status, waiting for commands...")
     cs800_status.run_mode = "Startup OK"
     time.sleep(1)
