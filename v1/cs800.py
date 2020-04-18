@@ -59,7 +59,7 @@ class StateMachine:
     ==============  ========================
     Command Name    Meaning
     ==============  ========================
-    RESTART         Stop Cryostream and re-initialise system back to “Ready”. 
+    RESTART         Stop Cryostream and re-initialise system back to "Ready". 
     RAMP            Change gas temperature to a set value at a controlled rate. 
     COOL            Make gas temperature decrease to a set value as quickly as possible. 
     PLAT            Maintain the current temperature for a set amount of time. 
