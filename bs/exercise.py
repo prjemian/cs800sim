@@ -9,12 +9,14 @@ import ophyd
 import time
 
 # logging.basicConfig(level=logging.WARNING)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+_l = logging.getLogger("ophyd")
+_l.setLevel(logging.WARN)
 
 
 class CS800(ophyd.Device):
-    binp = ophyd.Component(ophyd.EpicsSignal, ".BINP", kind="config")
+    buffer = ophyd.Component(ophyd.EpicsSignal, ".BINP", kind="config")
     ieos = ophyd.Component(ophyd.EpicsSignal, ".IEOS", kind="config")
     ifmt = ophyd.Component(ophyd.EpicsSignal, ".IFMT", kind="config")
     nrrd = ophyd.Component(ophyd.EpicsSignal, ".NRRD", kind="config")
@@ -24,7 +26,7 @@ class CS800(ophyd.Device):
 
     alarm_code = ophyd.Component(ophyd.Signal, value=0)
     cid = ophyd.Component(ophyd.Signal, value=0)
-    mac = ophyd.Component(ophyd.Signal, value="unknown")
+    # mac = ophyd.Component(ophyd.Signal, value="unknown")
     phase = ophyd.Component(ophyd.Signal, value="")
     setpoint = ophyd.Component(ophyd.Signal, value=0)
     temperature = ophyd.Component(ophyd.Signal, value=0)
@@ -48,13 +50,14 @@ class CS800(ophyd.Device):
 
 
     def listen(self, value=[], timestamp=None, **kwargs):
-        if len(value) != 928:
-            logger.debug("not exactly 928 bytes: %d", len(value))
+        buf = self.buffer.get()
+        if len(buf) != 928:
+            logger.debug("not exactly 928 bytes: %d", len(buf))
             return
 
         def uint16(i):
             "convert two bytes at offset i to a 16-bit unsigned integer"
-            return value[i]*256+value[i+1]
+            return buf[i]*256+buf[i+1]
 
         def bykey(pid, default=None):
             "return parameter by parameter ID"
@@ -72,11 +75,12 @@ class CS800(ophyd.Device):
             return
 
         cid = param.get(1028)
-        # if cid != self.cid.value:
+        # if self.cid.get() > 0 and cid != self.cid.get():
+        #     # filter out packets from other controllers
         #     return
         logger.debug("checkpoint %d", cid)
 
-        csum = uint16(926)
+        csum = uint16(924)
         # if csum == self.cksum:
         #     logger.debug("checksum not changed")
         #     return
@@ -91,7 +95,7 @@ class CS800(ophyd.Device):
             phase = f"phase:{phase_code}"
 
         self.alarm_code.put(bykey(1065))
-        self.mac.put(f"{param[1311]:04x}{param[1312]:04x}{param[1313]:04x}")
+        # self.mac.put(f"{param[1311]:04x}{param[1312]:04x}{param[1313]:04x}")
         self.phase.put(phase)
         self.setpoint.put(param[1050]*0.01)
         self.temperature.put(param[1051]*0.01)
@@ -103,32 +107,40 @@ class CS800(ophyd.Device):
         self.wait_for_connection()
         self.nrrd.put(928)
         self.ifmt.put("Binary")
-        self.scan.put("I/O Intr")
+        # self.scan.put("I/O Intr")
         self.tmod.put("Read")
         self.proc.put(1)
-        self.binp.subscribe(self.listen)
+        self.buffer.subscribe(self.listen)
 
     def succinct(self):
         # return self.read()
         dt = self.temperature.timestamp - t0
         return (
-            f"({dt:03f},{self.cid.value},{self.mac.value}):"
-            f" {self.alarm_code.value}"
-            f" {self.phase.value}"
-            f" {self.setpoint.value:.02f}"
-            f" {self.temperature.value:.02f}"
+            "("
+            f"{dt:03f}"
+            f",{self.cid.get()}"
+            f",{self.params.get(1028,0)}"
+            # f"{self.mac.get()}"
+            f",{hex(self.cksum)}"
+            "):"
+            f" {self.alarm_code.get()}"
+            f" {self.phase.get()}"
+            f" {self.setpoint.get():.02f}"
+            f" {self.temperature.get():.02f}"
             )
 
 
+ONE_SECOND = 1
+ONE_MINUTE = 60 * ONE_SECOND
+TEN_MINUTES = 10 * ONE_MINUTE
+
 if __name__ == "__main__":
     t0 = time.time()
-    # cs113 = CS800("cryo:CS:ASYN:SP", name="cs113")
-    # cs144 = CS800("cs800:CS:ASYN:SP", name="cs144")
-
+    t_quit = t0 + TEN_MINUTES
+    cs144 = CS800("cs800:CS:ASYN:SP", name="asyn")
+    cs144.setup(144)
+    # cs113 = CS800("cs113:CS:ASYN:SP", name="asyn")
     # cs113.setup(113)
-    # cs144.setup(144)
-    asyn = CS800("cs800:CS:ASYN:SP", name="asyn")
-    asyn.setup(113)
 
-    while time.time() < t0+10:
+    while time.time() < t_quit:
         time.sleep(0.1)
