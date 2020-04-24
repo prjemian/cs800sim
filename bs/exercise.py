@@ -75,9 +75,9 @@ class CS800(ophyd.Device):
             return
 
         cid = param.get(1028)
-        # if self.cid.get() > 0 and cid != self.cid.get():
-        #     # filter out packets from other controllers
-        #     return
+        if self.cid.get() > 0 and cid != self.cid.get():
+            # filter out packets from other controllers
+            return
         logger.debug("checkpoint %d", cid)
 
         csum = uint16(924)
@@ -136,11 +136,15 @@ TEN_MINUTES = 10 * ONE_MINUTE
 
 if __name__ == "__main__":
     t0 = time.time()
-    t_quit = t0 + TEN_MINUTES
-    cs144 = CS800("cs800:CS:ASYN:SP", name="asyn")
-    cs144.setup(144)
-    # cs113 = CS800("cs113:CS:ASYN:SP", name="asyn")
+    t_quit = t0 + 10*ONE_SECOND
+    # t_quit = t0 + TEN_MINUTES
+
+    # cs144 = CS800("cs800:CS:ASYN:SP", name="cs144")
+    # cs144.setup(144)
+    # cs113 = CS800("cs113:CS:ASYN:SP", name="cs113")
     # cs113.setup(113)
+
+    xxx_asyn = CS800("xxx:asyn", name="xxx_asyn")
 
     while time.time() < t_quit:
         time.sleep(0.1)
