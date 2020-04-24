@@ -123,7 +123,7 @@ class CS800(ophyd.Device):
             # f"{self.mac.get()}"
             f",{hex(self.cksum)}"
             "):"
-            f" {self.alarm_code.get()}"
+            # f" {self.alarm_code.get()}"
             f" {self.phase.get()}"
             f" {self.setpoint.get():.02f}"
             f" {self.temperature.get():.02f}"
