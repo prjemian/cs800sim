@@ -51,6 +51,7 @@ class CS800(ophyd.Device):
 
     def listen(self, value=[], timestamp=None, **kwargs):
         buf = self.buffer.get()
+        logger.debug("received %d characters", len(buf))
         if len(buf) != 928:
             logger.debug("not exactly 928 bytes: %d", len(buf))
             return
@@ -70,6 +71,7 @@ class CS800(ophyd.Device):
         param = {}
         for i in range(4, 924, 4):
             param[uint16(i)] = uint16(i+2)
+        logger.debug("interpreted %d parameters", len(param))
         if len(param) != 230:
             logger.debug("expected 230 parameters, found %d", len(param))
             return
@@ -78,7 +80,7 @@ class CS800(ophyd.Device):
         if self.cid.get() > 0 and cid != self.cid.get():
             # filter out packets from other controllers
             return
-        logger.debug("checkpoint %d", cid)
+        logger.debug("Controller ID %d", cid)
 
         csum = uint16(924)
         # if csum == self.cksum:
@@ -132,12 +134,12 @@ class CS800(ophyd.Device):
 
 ONE_SECOND = 1
 ONE_MINUTE = 60 * ONE_SECOND
-TEN_MINUTES = 10 * ONE_MINUTE
 
 if __name__ == "__main__":
     t0 = time.time()
-    t_quit = t0 + 10*ONE_SECOND
-    # t_quit = t0 + TEN_MINUTES
+    # t_quit = t0 + 10*ONE_SECOND
+    # t_quit = t0 + ONE_MINUTE
+    t_quit = t0 + 10*ONE_MINUTE
 
     # cs144 = CS800("cs800:CS:ASYN:SP", name="cs144")
     # cs144.setup(144)
@@ -145,6 +147,7 @@ if __name__ == "__main__":
     # cs113.setup(113)
 
     xxx_asyn = CS800("xxx:asyn", name="xxx_asyn")
+    xxx_asyn.setup(0)
 
     while time.time() < t_quit:
         time.sleep(0.1)
