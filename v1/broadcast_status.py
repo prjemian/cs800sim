@@ -50,6 +50,7 @@ class CS800:
         StatusRunMode
         StatusRunTime
         StatusTargetTemp
+        StatusAlarmCode
         """.split()
 
     def __init__(self):
@@ -124,6 +125,7 @@ class CS800:
         self.memory["StatusRunTime"] = (time.time() - self.start_time)/60.0
         self.memory["StatusGasFlow"] = max(0, rand_norm(20, 5))
         self.memory["FlowBlockBackPressure"] = max(0, rand_norm(60, 5))
+        self.memory["StatusAlarmCode"] = max(0, rand(0, 55))
 
         self.memory["time"] = time.time()
         for parm in utils.STATUS_IDS.keys():
