@@ -67,7 +67,7 @@ def get_user_parameters():
     """configure user's command line parameters from sys.argv"""
     parser = argparse.ArgumentParser(
         prog='cs800', 
-        description="simulate a CS800 controller")
+        description="listen to status broadcasts from CS800 controllers on the LAN")
     parser.add_argument(
         '--full',
         type=bool,
@@ -80,6 +80,8 @@ def listen_for_status():
     """
     listen for the UDP status broadcasts of the CS800 controller(s)
     """
+    user_parms = get_user_parameters()
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Enable broadcasting mode
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -87,13 +89,12 @@ def listen_for_status():
 
     logger.info("Status updates from '%s' on port %d", STATUS_HOST, STATUS_PORT)
 
-    user_parms = get_user_parameters()
-
     while True:
         status = get_status(sock)
         if user_parms.full:
             pprint.pprint(status)
         else:
+            # terse report
             print(
                 f"({status['datetime']}"
                 f",{status['ip']}"
