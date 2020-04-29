@@ -4,6 +4,7 @@
 listen for status broadcasts on UDP
 """
 
+import argparse
 import datetime
 import logging
 import pprint
@@ -62,6 +63,19 @@ def get_status(sock):
     )
 
 
+def get_user_parameters():
+    """configure user's command line parameters from sys.argv"""
+    parser = argparse.ArgumentParser(
+        prog='cs800', 
+        description="simulate a CS800 controller")
+    parser.add_argument(
+        '--full',
+        type=bool,
+        default=False,
+        help="full report (default: terse)")
+    return parser.parse_args()
+
+
 def listen_for_status():
     """
     listen for the UDP status broadcasts of the CS800 controller(s)
@@ -73,9 +87,22 @@ def listen_for_status():
 
     logger.info("Status updates from '%s' on port %d", STATUS_HOST, STATUS_PORT)
 
+    user_parms = get_user_parameters()
+
     while True:
         status = get_status(sock)
-        pprint.pprint(status)
+        if user_parms.full:
+            pprint.pprint(status)
+        else:
+            print(
+                f"({status['datetime']}"
+                f",{status['ip']}"
+                f",#{status['status']['SetUpControllerNumber']})"
+                f" mode={status['status']['StatusRunMode']}"
+                f" phase={status['status']['StatusPhaseId']}"
+                f" SP={status['status']['StatusGasSetPoint']}"
+                f" T={status['status']['StatusGasTemp']}"
+            )
         sys.stdout.flush()
 
 
